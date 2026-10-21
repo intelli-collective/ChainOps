@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams } from '
 import { AuthPage } from './features/auth/AuthPage'
 import { DeploymentPage } from './features/deployments'
 import { ContractRegistryPage } from './features/contracts'
+import { LandingPage } from './features/landing/LandingPage'
 import { PipelineRunsPage } from './features/pipelines'
 import { MonitoringDashboard, ContractEventsExplorer } from './features/monitoring'
 import { SecurityDashboard } from './features/security'
@@ -24,13 +25,15 @@ function ProjectPage({ page }: { page: 'pipelines' | 'deployments' | 'contracts'
     case 'security': return <SecurityDashboard projectId={projectId} service={securityService} onNavigate={navigate} />
   }
 }
+
 export default function App() {
   return <BrowserRouter><Routes>
     <Route path="/login" element={<AuthPage mode="login" />} />
     <Route path="/register" element={<AuthPage mode="register" />} />
     {/* Future server-backed authentication belongs at this boundary. No simulated security guard. */}
     <Route element={<ApplicationLayout />}>
-      <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route index element={<Navigate to="/dashboard" replace />} />
       <Route path="/dashboard" element={<DashboardPlaceholder />} />
       <Route path="/projects" element={<RoutePlaceholder title="Projects" />} />
       <Route path="/projects/:projectId/pipelines" element={<ProjectPage page="pipelines" />} />

@@ -6,7 +6,7 @@ export const severityLabels: Record<Severity, string> = {
 export const findingStatusLabels: Record<FindingStatus, string> = {
   open: 'Open', acknowledged: 'Acknowledged', resolved: 'Resolved',
 }
-export const policyLabels = { passed: 'Passed', blocked: 'Blocked', requires_review: 'Requires review' }
+export const policyLabels = { passed: 'Passed', blocked: 'Blocked', requires_review: 'Requires Review' }
 
 export interface FindingFilters {
   search: string
@@ -32,8 +32,12 @@ export function countSeverities(findings: SecurityFinding[]): Record<Severity, n
   return counts
 }
 
+export function securityDashboardPath(projectId: string) {
+  return `/projects/${encodeURIComponent(projectId)}/security`
+}
+
 export function scanDetailsPath(projectId: string, scanId: string) {
-  return `/projects/${encodeURIComponent(projectId)}/security/scans/${encodeURIComponent(scanId)}`
+  return `${securityDashboardPath(projectId)}/scans/${encodeURIComponent(scanId)}`
 }
 
 export function formatScanDate(date: string) {
