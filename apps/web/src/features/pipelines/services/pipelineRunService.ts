@@ -1,3 +1,4 @@
+import { buildRunDetails } from '../mocks/pipelineRunDetails'
 import { pipelineRuns } from '../mocks/pipelineRuns'
 import type { PipelineRun, PipelineRunService } from '../types/pipelineRun'
 
@@ -40,5 +41,20 @@ export const mockPipelineRunService: PipelineRunService = {
       startedAt: new Date().toISOString(),
       durationSeconds: null,
     }
+  },
+  async getRun(projectId, runId) {
+    await delay(400)
+    if (getMockScenario() === 'error') throw new Error('Unable to load pipeline run')
+    const run = pipelineRuns.find((item) => item.projectId === projectId && item.id === runId)
+    return run ? buildRunDetails(structuredClone(run)) : null
+  },
+  async simulateCancel(run) {
+    await delay(300)
+    const stages = run.stages.map((stage) => {
+      if (stage.status === 'running') return { ...stage, status: 'cancelled' as const, logs: [...stage.logs, '[WARN] Run cancelled by user'] }
+      if (stage.status === 'pending') return { ...stage, status: 'skipped' as const }
+      return stage
+    })
+    return { ...run, status: 'cancelled', stages }
   },
 }

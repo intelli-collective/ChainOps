@@ -1,4 +1,4 @@
-import type { PipelineRun, PipelineRunFilters, RunStatus } from '../types/pipelineRun'
+import type { PipelineRun, PipelineRunFilters, PipelineStage, RunStatus, RunTrigger, StageKey, StageStatus } from '../types/pipelineRun'
 
 export const RUN_STATUS_LABELS: Record<RunStatus, string> = {
   queued: 'Queued',
@@ -6,6 +6,38 @@ export const RUN_STATUS_LABELS: Record<RunStatus, string> = {
   success: 'Passed',
   failed: 'Failed',
   cancelled: 'Cancelled',
+}
+
+export const RUN_TRIGGER_LABELS: Record<RunTrigger, string> = {
+  push: 'Triggered by push',
+  pull_request: 'Triggered by pull request',
+  manual: 'Triggered manually',
+}
+
+export const STAGE_STATUS_LABELS: Record<StageStatus, string> = {
+  pending: 'Pending',
+  running: 'In progress',
+  success: 'Passed',
+  failed: 'Failed',
+  cancelled: 'Cancelled',
+  skipped: 'Skipped',
+}
+
+export const stageTabId = (key: StageKey) => `pipeline-stage-tab-${key}`
+
+/** Panel heading for a stage, e.g. "Build in progress" or "Test failed". */
+export function stageHeading(stage: PipelineStage): string {
+  if (stage.status === 'pending') return `${stage.name} not started`
+  return `${stage.name} ${STAGE_STATUS_LABELS[stage.status].toLowerCase()}`
+}
+
+/** The stage to show first: the active one, else where the run stopped, else the last stage. */
+export function defaultStage(stages: PipelineStage[]): PipelineStage | undefined {
+  return (
+    stages.find((stage) => stage.status === 'running') ??
+    stages.find((stage) => stage.status === 'failed' || stage.status === 'cancelled') ??
+    stages.at(-1)
+  )
 }
 
 export const DEFAULT_FILTERS: PipelineRunFilters = {
