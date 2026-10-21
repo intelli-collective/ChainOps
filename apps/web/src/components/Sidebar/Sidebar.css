@@ -1,0 +1,118 @@
+.chainops-sidebar {
+  --sidebar-background: #0a1110;
+  --sidebar-muted: #96a39f;
+  --sidebar-accent: #46bdb4;
+  box-sizing: border-box;
+  flex: 0 0 284px;
+  width: 284px;
+  max-width: 100%;
+  height: 100svh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #263b35 var(--sidebar-background);
+  padding: 30px 18px 32px;
+  background: var(--sidebar-background);
+  color: var(--sidebar-muted);
+  border-right: 1px solid #12201c;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.chainops-sidebar *,
+.chainops-sidebar *::before,
+.chainops-sidebar *::after { box-sizing: border-box; }
+
+.chainops-sidebar .chainops-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 28px 12px;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.chainops-sidebar__logo {
+  display: block;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  mix-blend-mode: screen;
+}
+
+/* branding.jpg includes its own symbol. Crop to the supplied wordmark only. */
+.chainops-sidebar__wordmark {
+  display: block;
+  position: relative;
+  width: 164px;
+  height: 44px;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+
+.chainops-sidebar__wordmark img {
+  position: absolute;
+  display: block;
+  width: 240px;
+  max-width: none;
+  height: 80px;
+  left: -74px;
+  top: -16px;
+}
+
+.chainops-sidebar__workspace {
+  display: flex;
+  flex-direction: column;
+  margin: 0 12px 24px;
+  overflow-wrap: anywhere;
+}
+
+.chainops-sidebar__group { margin: 0 0 14px; }
+.chainops-sidebar__group:last-child { margin-bottom: 0; }
+
+.chainops-sidebar .chainops-sidebar__heading {
+  margin: 0;
+  padding: 0 12px 12px;
+  color: var(--sidebar-muted);
+  font: inherit;
+  text-transform: uppercase;
+}
+
+.chainops-sidebar .chainops-sidebar__list {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chainops-sidebar__list li { margin: 0; padding: 0; }
+
+.chainops-sidebar .chainops-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: var(--sidebar-muted);
+  font: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.chainops-sidebar__icon { flex: 0 0 19px; width: 19px; height: 19px; }
+.chainops-sidebar .chainops-sidebar__link:hover { color: #e1eeea; background: #12201c; }
+.chainops-sidebar .chainops-sidebar__link--active { color: var(--sidebar-accent); }
+.chainops-sidebar .chainops-sidebar__link--active:hover { color: var(--sidebar-accent); }
+.chainops-sidebar a:focus-visible { outline: 2px solid var(--sidebar-accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .chainops-sidebar .chainops-sidebar__link { transition: none; }
+}
