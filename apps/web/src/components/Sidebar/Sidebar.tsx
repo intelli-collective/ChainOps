@@ -27,6 +27,7 @@ export interface SidebarProps {
   logoSrc?: string
   brandingSrc?: string
   className?: string
+  sectionStyle?: 'accent' | 'line'
   onNavigate?: () => void
 }
 
@@ -57,6 +58,7 @@ export function Sidebar({
   logoSrc = `${import.meta.env.BASE_URL}logo.jpg`,
   brandingSrc = `${import.meta.env.BASE_URL}branding.jpg`,
   className = '',
+  sectionStyle = 'accent',
   onNavigate,
 }: SidebarProps) {
   const projectPath = `/projects/${encodeURIComponent(projectId)}`
@@ -79,7 +81,7 @@ export function Sidebar({
     ] },
   ]
 
-  return <aside className={`chainops-sidebar ${className}`} aria-label="Workspace sidebar">
+  return <aside className={`chainops-sidebar chainops-sidebar--${sectionStyle} ${className}`} aria-label="Workspace sidebar">
     <NavLink className="chainops-sidebar__brand" to={brandHref} aria-label="ChainOps home" onClick={onNavigate}>
       <img className="chainops-sidebar__logo" src={logoSrc} alt="" width="44" height="44" />
       <span className="chainops-sidebar__wordmark" aria-hidden="true">
@@ -87,8 +89,10 @@ export function Sidebar({
       </span>
     </NavLink>
     <div className="chainops-sidebar__workspace">
-      <span>{workspaceName}</span>
-      <span>{workspaceDescription}</span>
+      <div className="chainops-sidebar__workspace-copy">
+        <span className="chainops-sidebar__workspace-label">{workspaceDescription}</span>
+        <span className="chainops-sidebar__workspace-name">{workspaceName}</span>
+      </div>
     </div>
     <nav className="chainops-sidebar__navigation" aria-label="Main navigation">
       {navigation.map(group => <section className="chainops-sidebar__group" key={group.label} aria-label={group.label}>

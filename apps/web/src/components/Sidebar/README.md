@@ -28,7 +28,9 @@ Pass `groups` to supply the application's actual routes (for example the current
 standalone `/deployments` route). This component does not register those routes.
 
 Optional props: `workspaceName`, `workspaceDescription`, `brandHref`, `logoSrc`,
-`brandingSrc`, `className`, and `onNavigate` (for closing a parent mobile drawer).
+`brandingSrc`, `className`, `sectionStyle`, and `onNavigate` (for closing a parent mobile drawer).
+Section labels use unboxed text with a slim accent via `sectionStyle="accent"` by default. Pass
+`sectionStyle="line"` to use the earlier uppercase labels with divider lines.
 The `groups` prop accepts named groups of `{ label, to, icon, end? }` items. Icon
 names and props are exported as TypeScript types from this folder.
 
