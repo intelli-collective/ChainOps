@@ -41,7 +41,7 @@ function SourceCode({ finding, file }: { finding: SecurityFinding; file: string 
   </section>
 }
 
-/** The Figma 27:517 found-finding view. Data loading and error states follow in Stage 4. */
+/** The Figma 27:517 found-finding view. */
 export function SecurityFindingDetailsView({ scan, finding, onNavigate }: SecurityFindingDetailsViewProps) {
   const file = finding.sourceLocation?.file ?? finding.contract
   const [activeTab, setActiveTab] = useState<DetailTab>('overview')
