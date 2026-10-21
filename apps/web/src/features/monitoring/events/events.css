@@ -1,0 +1,54 @@
+.events-explorer .monitoring-breadcrumb button, .events-text-button { border: 0; background: none; color: var(--monitoring-accent); padding: 0; }
+.events-actions { display: flex; gap: 14px; }
+.events-outline { border: 1px solid #415e58; border-radius: 6px; background: var(--monitoring-surface); color: var(--monitoring-text); min-height: 42px; padding: 10px 24px; }
+.events-actions > button:first-child { min-width: 187px; }
+.events-live { min-width: 134px; color: var(--monitoring-accent); }
+.events-subtitle { margin-top: 18px !important; color: var(--monitoring-muted); font-size: 15px; }
+.events-filters { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; align-items: end; gap: 24px; padding: 14px; background: var(--monitoring-surface); }
+.events-filters label, .events-block-filters label { display: flex; align-items: stretch; flex-direction: column; gap: 3px; color: var(--monitoring-muted); font-size: 12px; min-width: 0; }
+.events-filters select { border: 0; padding: 5px 0; border-radius: 0; min-height: 30px; width: 100%; }
+.events-explorer input { background: var(--monitoring-surface); color: var(--monitoring-text); font: inherit; border: 1px solid var(--monitoring-border); border-radius: 4px; padding: 6px; width: 100%; min-width: 0; }
+.events-explorer input:focus-visible, .events-table-wrap:focus-visible { outline: 2px solid var(--monitoring-accent); outline-offset: 3px; }
+.events-explorer input[aria-invalid="true"] { border-color: var(--monitoring-error); }
+.events-block-filters { color: var(--monitoring-muted); margin: 10px 0 14px; font-size: 12px; }
+.events-block-filters summary { cursor: pointer; width: fit-content; }
+.events-block-filters > div { display: flex; gap: 16px; padding: 12px 0; }
+.events-validation { color: var(--monitoring-error); margin: 12px 0 !important; }
+.events-table-wrap { padding: 7px 14px 22px; overflow-x: auto; }
+.events-table { min-width: 850px; table-layout: fixed; }
+.events-table th:nth-child(1) { width: 20%; }
+.events-table th:nth-child(2) { width: 15%; }
+.events-table th:nth-child(3) { width: 15%; }
+.events-table th:nth-child(4) { width: 22%; }
+.events-table th:nth-child(5) { width: 15%; }
+.events-table th:nth-child(6) { width: 13%; }
+.monitoring .events-table th, .monitoring .events-table td { border: 0; font-size: 12px; padding: 18px 0; text-align: left; }
+.monitoring .events-table th { font-weight: 400; color: var(--monitoring-muted); }
+.events-table td:first-child { color: var(--monitoring-muted); }
+.events-table code { font: inherit; color: var(--monitoring-accent); }
+.events-accent { color: var(--monitoring-accent); }
+.events-detail-row > td { padding: 18px !important; background: #101c19; border-radius: 5px; }
+.events-detail-row h2 { margin-bottom: 12px; }
+.events-detail-row dl { display: grid; grid-template-columns: 140px 1fr; gap: 8px 16px; margin: 0 0 16px; }
+.events-detail-row dt { color: var(--monitoring-muted); }
+.events-detail-row dd { margin: 0; overflow-wrap: anywhere; }
+.events-detail-row li { display: grid; grid-template-columns: 100px 100px 1fr; gap: 12px; padding: 8px 0; }
+.events-detail-row li code { overflow-wrap: anywhere; }
+.events-detail-row li span { color: var(--monitoring-muted); }
+.events-detail-row p { margin-top: 12px; }
+.events-pagination { display: flex; justify-content: space-between; align-items: center; gap: 16px; color: var(--monitoring-muted); margin-top: 16px; font-size: 12px; }
+.events-pagination nav { display: flex; align-items: center; gap: 14px; }
+.events-pagination button { padding: 7px 14px; min-height: 36px; }
+.events-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 1000px) {
+  .events-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .events-filters > button { justify-self: start; }
+  .events-pagination { align-items: start; flex-direction: column; }
+}
+@media (max-width: 450px) {
+  .events-actions { flex-wrap: wrap; gap: 10px; }
+  .events-actions > button:first-child { min-width: 160px; }
+  .events-filters { grid-template-columns: 1fr; }
+  .events-block-filters > div { flex-direction: column; }
+  .events-pagination nav { gap: 10px; flex-wrap: wrap; }
+}

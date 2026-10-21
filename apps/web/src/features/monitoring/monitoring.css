@@ -1,0 +1,107 @@
+/* Screenshot-derived fallback tokens, scoped until M5 supplies shared tokens. */
+.monitoring, .monitoring-dialog {
+  --monitoring-bg: #000;
+  --monitoring-surface: #0b1211;
+  --monitoring-border: #1a2926;
+  --monitoring-text: #e7eeec;
+  --monitoring-muted: #9ba9a5;
+  --monitoring-accent: #55c8bf;
+  --monitoring-button: #007f73;
+  --monitoring-deposit: #a5b4af;
+  --monitoring-transfer: #00c5b8;
+  --monitoring-warning: #e9be4c;
+  --monitoring-error: #f17479;
+  color-scheme: dark;
+  color: var(--monitoring-text);
+  font: 13px/1.5 Arial, Helvetica, sans-serif;
+  text-align: left;
+}
+.monitoring { background: var(--monitoring-bg); padding: 34px 35px 64px; min-height: 100%; box-sizing: border-box; }
+.monitoring *, .monitoring-dialog * { box-sizing: border-box; }
+.monitoring h1, .monitoring h2, .monitoring p, .monitoring-dialog h2 { margin: 0; }
+.monitoring h1 { font-size: 34px; line-height: 1.25; font-weight: 700; letter-spacing: -.5px; }
+.monitoring h2, .monitoring-dialog h2 { font-size: 13px; font-weight: 600; line-height: 1.5; }
+.monitoring button, .monitoring select, .monitoring-dialog button, .monitoring-dialog select { font: inherit; }
+.monitoring button, .monitoring-dialog button { cursor: pointer; }
+.monitoring button:disabled { opacity: .5; cursor: not-allowed; }
+.monitoring button:focus-visible, .monitoring select:focus-visible, .monitoring summary:focus-visible,
+.monitoring-dialog button:focus-visible, .monitoring-dialog select:focus-visible, .monitoring-dialog input:focus-visible {
+  outline: 2px solid var(--monitoring-accent); outline-offset: 4px;
+}
+.monitoring button:hover:not(:disabled), .monitoring-dialog button:hover { filter: brightness(1.18); }
+.monitoring-breadcrumb { color: var(--monitoring-muted); margin-bottom: 16px !important; }
+.monitoring-breadcrumb span { padding: 0 6px; }
+.monitoring-title-row, .monitoring-intro, .monitoring-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.monitoring-primary { border: 1px solid var(--monitoring-button); background: var(--monitoring-button); color: #fff; padding: 11px 24px; border-radius: 6px; font-weight: 600 !important; min-height: 42px; }
+.monitoring-title-row .monitoring-primary { min-width: 230px; }
+.monitoring-intro { margin-top: 18px; color: var(--monitoring-muted); }
+.monitoring-intro > p { font-size: 15px; }
+.monitoring label, .monitoring-dialog label { display: inline-flex; gap: 10px; align-items: center; }
+.monitoring select, .monitoring-dialog select { background: var(--monitoring-surface); border: 1px solid var(--monitoring-border); color: var(--monitoring-text); padding: 7px; border-radius: 5px; }
+.monitoring-demo { color: var(--monitoring-muted); font-size: 11px; margin: 8px 0 16px !important; }
+.monitoring-card { background: var(--monitoring-surface); border: 1px solid var(--monitoring-border); border-radius: 7px; padding: 21px; min-width: 0; }
+.monitoring-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 16px; }
+.monitoring-stats article { min-height: 133px; }
+.monitoring-stats h2 { color: var(--monitoring-muted); font-size: 12px; font-weight: 400; }
+.monitoring-stats strong { display: block; font-size: clamp(23px, 2.7vw, 34px); line-height: 1.4; margin: 4px 0; }
+.monitoring-stats p { color: var(--monitoring-muted); font-size: 12px; }
+.monitoring-stats .monitoring-good { color: #42cf90; }
+.monitoring-section-heading { margin-bottom: 16px; }
+.monitoring-section-heading button, .monitoring-dialog-list button, .monitoring-events button { border: 0; background: none; padding: 0; color: var(--monitoring-accent); text-align: left; }
+.monitoring-legend { display: flex; gap: 15px; font-size: 12px; color: var(--monitoring-muted); }
+.monitoring-legend span:nth-child(2) { color: var(--monitoring-transfer); }
+.monitoring-legend span:nth-child(3) { color: var(--monitoring-warning); }
+.monitoring-throughput > p { color: var(--monitoring-muted); font-size: 12px; }
+.monitoring-chart { height: 145px; display: flex; gap: 1.1%; align-items: end; margin-top: 0; }
+.monitoring-bar-group { height: 100%; display: flex; align-items: end; gap: 10%; flex: 1; min-width: 0; }
+.monitoring-bar-group span { width: 27%; background: var(--monitoring-deposit); }
+.monitoring-bar-group span:nth-child(2) { background: var(--monitoring-transfer); }
+.monitoring-bar-group span:nth-child(3) { background: var(--monitoring-warning); }
+.monitoring-chart-axis { display: flex; justify-content: space-between; margin-top: 10px; color: var(--monitoring-muted); font-size: 12px; }
+.monitoring-chart-data { margin-top: 10px; color: var(--monitoring-muted); font-size: 11px; }
+.monitoring-chart-data summary { cursor: pointer; width: fit-content; }
+.monitoring-table-wrap { overflow-x: auto; }
+.monitoring table { width: 100%; border-collapse: collapse; }
+.monitoring th, .monitoring td { padding: 8px; text-align: left; border-bottom: 1px solid var(--monitoring-border); }
+.monitoring-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 16px; }
+.monitoring-panels > section { min-height: 240px; }
+.monitoring ul, .monitoring-dialog ul { padding: 0; margin: 0; list-style: none; }
+.monitoring-contract-row { display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 12px; width: 100%; border: 0; background: none; color: var(--monitoring-text); text-align: left; padding: 14px 0; font-size: 12px !important; }
+.monitoring-contract-row > span:nth-child(2), .monitoring-alerts li > span:first-child { color: var(--monitoring-muted); }
+.monitoring-active, .monitoring-status-recovered { color: var(--monitoring-accent); }
+.monitoring-alerts li { display: grid; grid-template-columns: 1fr 1.7fr 1fr; gap: 10px; padding: 10px 0; font-size: 12px; }
+.monitoring-status-error { color: var(--monitoring-error); }
+.monitoring-status-retrying { color: var(--monitoring-warning); }
+.monitoring-browse { min-width: 257px; margin-top: 16px; }
+.monitoring-latest { margin-top: 16px; }
+.monitoring-events li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; color: var(--monitoring-muted); font-size: 12px; }
+.monitoring-muted { color: var(--monitoring-muted); }
+.monitoring-state { min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; }
+.monitoring-notice { color: var(--monitoring-accent); padding-bottom: 16px; }
+.monitoring-dialog { background: var(--monitoring-surface); border: 1px solid var(--monitoring-border); border-radius: 8px; padding: 24px; width: min(560px, calc(100% - 32px)); max-height: 85dvh; overflow-y: auto; }
+.monitoring-dialog::backdrop { background: rgb(0 0 0 / 75%); }
+.monitoring-dialog h2 { font-size: 18px; }
+.monitoring-dialog fieldset { margin: 20px 0; border: 1px solid var(--monitoring-border); border-radius: 5px; }
+.monitoring-dialog .monitoring-check { display: flex; padding: 12px 0; flex-wrap: wrap; }
+.monitoring-check input { accent-color: var(--monitoring-button); width: 18px; height: 18px; }
+.monitoring-check span { margin-left: auto; color: var(--monitoring-muted); }
+.monitoring-dialog-list li { border-bottom: 1px solid var(--monitoring-border); padding: 14px 0; }
+.monitoring-dialog-list code { overflow-wrap: anywhere; }
+.monitoring-dialog > label { margin: 12px 0; }
+@media (max-width: 760px) {
+  .monitoring { padding: 24px 18px 40px; }
+  .monitoring-title-row, .monitoring-intro { align-items: start; flex-direction: column; }
+  .monitoring h1 { font-size: 28px; }
+  .monitoring-stats { grid-template-columns: 1fr; gap: 12px; }
+  .monitoring-stats article { min-height: 115px; }
+  .monitoring-stats strong { font-size: 30px; }
+  .monitoring-panels { grid-template-columns: 1fr; }
+  .monitoring-panels > section { min-height: 210px; }
+  .monitoring-throughput .monitoring-section-heading { align-items: start; flex-direction: column; gap: 8px; }
+  .monitoring-chart { gap: .7%; }
+  .monitoring-chart-axis { font-size: 10px; }
+  .monitoring-card { padding: 18px; }
+  .monitoring-events li { flex-direction: column; gap: 4px; }
+  .monitoring-contract-row { grid-template-columns: 1fr 1fr auto; gap: 7px; }
+  .monitoring-alerts li { grid-template-columns: .9fr 1.4fr .7fr; gap: 8px; }
+}
