@@ -10,6 +10,7 @@ export function Preview() {
   const [scenario, setScenario] = useState<MockScenario>('populated')
   const [service, setService] = useState(() => createMockSecurityService())
   const [destination, setDestination] = useState('')
+  const [completedScan, setCompletedScan] = useState('')
   return <>
     <div className="security-dashboard" style={{ minHeight: 0, paddingBottom: 0 }}>
       <label>Development scenario <select aria-label="Development scenario" value={scenario} onChange={event => {
@@ -17,9 +18,12 @@ export function Preview() {
         setScenario(next)
         setService(createMockSecurityService(next))
         setDestination('')
+        setCompletedScan('')
       }}>{scenarios.map(item => <option key={item}>{item}</option>)}</select></label>
+      <p role="note">Development preview · Mock data only. Slither does not run, and mock policy results do not authorize releases.</p>
       {destination && <p role="status">Navigation requested: <code>{destination}</code>. M5 must register this route; scan details are outside Issue #26.</p>}
+      {completedScan && <p role="status">Analysis Complete destination requested for {completedScan}. M5 can connect this callback when that screen is implemented.</p>}
     </div>
-    <SecurityDashboard key={scenario} projectId={mockProjectId} service={service} onNavigate={setDestination} />
+    <SecurityDashboard key={scenario} projectId={mockProjectId} service={service} onNavigate={setDestination} onAnalysisComplete={scan => setCompletedScan(scan.id)} />
   </>
 }

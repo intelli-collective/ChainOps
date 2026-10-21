@@ -17,6 +17,7 @@ describe('security findings', () => {
     const findings = createSecurityFixtures()[0].findings
     expect(filterFindings(findings, { search: '  SLT-00 ', severity: 'low', status: 'open', contract: 'Token.sol' }).map(item => item.id)).toEqual(['SLT-004', 'SLT-006'])
     expect(filterFindings(findings, { ...emptyFilters, search: 'REENTRANCY' }).map(item => item.id)).toEqual(['SLT-001'])
+    expect(filterFindings(findings, { ...emptyFilters, severity: 'high' }).map(item => item.id)).toEqual(['SLT-001'])
     expect(filterFindings(findings, { ...emptyFilters, severity: 'informational' })).toEqual([])
     expect(filterFindings(findings, emptyFilters)).toHaveLength(8)
   })

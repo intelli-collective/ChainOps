@@ -11,7 +11,8 @@ Feature implementation for `/projects/:projectId/security`.
 
 The dashboard provides the Figma findings table, original four severity cards,
 combined search/severity/finding-status/contract filters, clear filters, scan
-selection, scan-details navigation callbacks, and a development-only simulated
+selection, scan-details navigation callbacks, an optional Analysis Complete
+callback, and a development-only simulated
 analysis. Latest and historical scan status, finding severity, and policy result
 are separate fields and UI labels. A completed scan can have a blocked policy.
 Failed/running scans do not show zero counts or a passed policy.
@@ -60,8 +61,10 @@ Explicitly approved by the user to satisfy Issue #26:
 - Show Informational as a lower-emphasis count in that strip and a separate
   severity filter; it is not grouped with Low in the data. The original Low card's
   descriptive “Informational” caption remains because it is in the approved frame.
-- Add explicit development/mock disclosure. Run Analysis simulates an in-memory
-  scan, never a real analyzer or authoritative policy evaluation.
+- Add explicit development/mock disclosure in the isolated preview only. Its
+  Run Analysis simulates an in-memory scan, never a real analyzer or
+  authoritative policy evaluation. The reusable dashboard contains no
+  preview-only scenario selector or disclaimer.
 
 The original heading, subtitle, cards, filters, table, and footer remain in their
 original order. No gradients or new theme were added. Responsive layouts wrap
@@ -105,6 +108,12 @@ must register the destination; its actual content belongs to M4-FE-02. No shared
 route is registered by this change, so the requested production route is not yet
 available. This is an integration dependency, not a completed routing claim.
 
+The optional `onAnalysisComplete(scan)` callback fires after `runAnalysis`
+resolves. The preview reports the returned scan ID. M5 can wire it to the
+separate Analysis Complete screen represented by Figma `27:497` when its route
+is agreed; Issue #26 does not implement that destination. If no callback is
+provided, the dashboard selects the newly returned scan and remains usable.
+
 M5 should render this page in the content area without a second layer of content
 padding and provide the matching shared `--co-*`, `--color-*`, and `--radius-md`
 tokens. Scoped fallbacks use the exact values returned by Figma. Global starter
@@ -133,7 +142,9 @@ styles will need replacing as part of M5's shell work.
    The development-scenario control is preview tooling, outside the feature page.
 3. With `populated`, verify 0 Critical, 1 High, 2 Medium, 5 Low, 0 Informational;
    8 rows; scan Completed and policy Blocked. Verify the mock disclaimer.
-4. Search `REENTRANCY`: one row. Clear. Set Low + Open + Token.sol: two rows.
+4. Select High severity: one SLT-001 row and the Figma `27:421` footer,
+   “Showing 1 high-severity finding”. Clear. Search `REENTRANCY`: one row.
+   Clear. Set Low + Open + Token.sol: two rows.
    Search a nonexistent title: no matching findings. Clear filters: eight rows.
 5. Select Informational on scan 130: no matches. Choose scan 129: one
    Informational finding, Completed / Passed. Choose scan 128: Requires review.
@@ -144,7 +155,8 @@ styles will need replacing as part of M5's shell work.
    reports the encoded scan route and, for findings, the finding hash.
 8. Run Analysis: the button disables while mock analysis runs; results/policy
    become unavailable during the simulation. A new scan is selected afterward;
-   its analysis number increments while linked pipeline run stays 130.
+   its analysis number increments while linked pipeline run stays 130. The
+   preview also reports the Analysis Complete callback with the new scan ID.
 9. Select `empty`, then Run Analysis: a mock scan appears. Select `clean`: no
    findings with a distinct passed policy. Select `running` and `failed` to
    inspect scan lifecycle states.

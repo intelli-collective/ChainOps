@@ -30,7 +30,6 @@
 .security-dashboard h2 { color: var(--color-text, #edf3f1); font: 600 16px/1.4 Inter, sans-serif; }
 .security-heading { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; min-height: 52px; }
 .security-description { font-size: 16px; }
-.security-source { font-size: 13px; }
 .security-dashboard button, .security-dashboard select, .security-dashboard input {
   min-height: 48px;
   border: 1px solid var(--co-border-control, #58726b);
