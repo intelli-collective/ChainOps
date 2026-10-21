@@ -1,10 +1,15 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthPage } from './features/auth/AuthPage'
 import { DeploymentPage } from './features/deployments'
 import { ContractRegistryPage } from './features/contracts'
+import './App.css'
 
 function App() {
   const registryPath = '/projects/chainvault/contracts'
   const isRegistry = window.location.pathname === registryPath
 
+
+function DeploymentPreview() {
   return (
     <>
       <header className="deployment-preview-header">
@@ -22,9 +27,33 @@ function App() {
       <footer id="deployment-history-preview" className="deployment-preview-footer" tabIndex={-1}>
         This preview uses mock data. No blockchain transactions are sent, and local
         registry additions reset when the page reloads.
+
+      <DeploymentPage
+        projectId="chainvault"
+        historyHref="#deployment-history-preview"
+      />
+
+      <footer
+        id="deployment-history-preview"
+        className="deployment-preview-footer"
+        tabIndex={-1}
+      >
+        Deployment history is not included in this Task 1 preview. All deployment
+        actions are simulated; no blockchain transactions are sent.
       </footer>
     </>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<AuthPage mode="login" />} />
+        <Route path="/register" element={<AuthPage mode="register" />} />
+        <Route path="/deployments" element={<DeploymentPreview />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
