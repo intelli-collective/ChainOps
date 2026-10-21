@@ -1,5 +1,6 @@
 import { approvedReleases } from '../mocks/releases'
 import { buildArtifacts } from '../mocks/artifacts'
+import { recentBuildRuns } from '../mocks/buildRuns'
 import type { DeploymentService } from '../types/deployment'
 
 /** Development fixture service. No blockchain or backend requests are made. */
@@ -11,6 +12,15 @@ export const mockDeploymentService: DeploymentService = {
   async getArtifacts(releaseId) {
     await new Promise((resolve) => setTimeout(resolve, 300))
     return structuredClone(buildArtifacts.filter((artifact) => artifact.releaseId === releaseId))
+  },
+  async getBuildRuns(releaseId) {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    const release = approvedReleases.find((item) => item.id === releaseId)
+    if (!release) return []
+    return structuredClone([
+      { id: `run-${release.runNumber}`, runNumber: release.runNumber, commitSha: release.commitSha, branch: 'main', title: `Prepare ${release.name}`, status: 'passed' as const, eligible: release.buildPassed && release.approvals >= release.requiredApprovals },
+      ...recentBuildRuns.filter((item) => item.runNumber !== release.runNumber).map((item) => ({ ...item, eligible: false, ineligibleReason: item.status === 'failed' ? item.ineligibleReason : 'This run is not part of the pinned approved release.' })),
+    ])
   },
   async simulateDeployment(request) {
     await new Promise((resolve) => setTimeout(resolve, 700))

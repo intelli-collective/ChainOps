@@ -13,6 +13,7 @@ export interface ApprovedRelease {
 export interface DeploymentService {
   getApprovedReleases(projectId: string): Promise<ApprovedRelease[]>
   getArtifacts(releaseId: string): Promise<BuildArtifact[]>
+  getBuildRuns(releaseId: string): Promise<DeploymentBuildRun[]>
   simulateDeployment(request: DeploymentRequest): Promise<DeploymentResult>
 }
 
@@ -22,6 +23,19 @@ export interface BuildArtifact {
   contractName: string
   source: string
   compiler: string
+  fileName: string
+  sizeKb: number
+}
+
+export interface DeploymentBuildRun {
+  id: string
+  runNumber: number
+  commitSha: string
+  branch: string
+  title?: string
+  status: 'passed' | 'failed'
+  eligible: boolean
+  ineligibleReason?: string
 }
 
 export interface DeploymentRequest {

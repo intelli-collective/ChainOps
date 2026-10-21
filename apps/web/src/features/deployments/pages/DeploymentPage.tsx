@@ -52,9 +52,9 @@ function DeploymentFlow({ projectId, onContinueToArtifact, historyHref, network 
 
   return (
     <main className="deployment-page">
-      <nav className="deployment-breadcrumb" aria-label="Breadcrumb"><span>Release</span><span aria-hidden="true">›</span><span aria-current="page">Prepare a deployment</span></nav>
-      <h1>Prepare a deployment</h1>
-      <p className="deployment-intro">{configuring ? 'Select a build artifact and configure your deployment.' : 'Choose an approved release before configuring a deployment.'}</p>
+      <nav className="deployment-breadcrumb" aria-label="Breadcrumb"><span>{configuring ? 'Deployments' : 'Release'}</span><span aria-hidden="true">›</span><span aria-current="page">{configuring ? 'New deployment' : 'Prepare a deployment'}</span></nav>
+      <h1>{configuring ? 'Deploy Contract' : 'Prepare a deployment'}</h1>
+      <p className="deployment-intro">{configuring ? 'Deploy a compiled contract from an approved pipeline run to a network.' : 'Choose an approved release before configuring a deployment.'}</p>
       {state.status === 'loading' && <section className="deployment-panel deployment-state" role="status">Loading approved releases…</section>}
       {state.status === 'error' && <section className="deployment-panel"><h2>Unable to load releases</h2><p role="alert">Approved releases could not be loaded. Please try again.</p><button className="deployment-primary" onClick={() => { setState({ status: 'loading' }); setAttempt((value) => value + 1) }}>Try again</button></section>}
       {state.status === 'ready' && configuring && state.releases.find((item) => item.id === releaseId) && <DeploymentConfiguration key={releaseId} projectId={projectId} release={state.releases.find((item) => item.id === releaseId)!} initialNetwork={network} service={service} onBack={() => setConfiguring(false)} historyHref={historyHref} />}
