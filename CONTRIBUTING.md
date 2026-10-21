@@ -1,113 +1,175 @@
 # Contributing to ChainOps
 
-Thank you for contributing to ChainOps.
+This guide defines the Git and GitHub conventions for the ChainOps team. It applies to **design documentation** and **implementation** (React + Vite frontend, NestJS backend, and supporting services).
 
-This document describes the development workflow, branching strategy, and basic contribution guidelines followed by the Intelli Coders team.
+> Keep changes focused, reference the relevant GitHub issue, and use pull requests for review. One logical change can be one commit; multiple commits are not required just because multiple files changed.
 
-## Branching Strategy
+## 1. Working with GitHub Issues
 
-ChainOps uses two permanent branches:
+- Create or use an existing GitHub issue before starting a tracked task.
+- Assign an owner and use the existing GitHub Project to track progress.
+- Prefer **one issue → one branch → one pull request** for a focused task.
+- The issue number in branch examples below is a placeholder. Always use the actual GitHub issue number.
+- Avoid creating separate issues or commits for every small setup step if they belong to one deliverable.
 
-* `main` - Stable and submission-ready code.
-* `dev` - Active development and integration branch.
+## 2. Branch Naming
 
-### Working Branches
-
-Create working branches from `dev` for meaningful changes.
-
-Use the following naming conventions:
-
-* `feature/<name>` - New functionality
-* `fix/<name>` - Bug fixes
-* `docs/<name>` - Documentation changes
-* `chore/<name>` - Maintenance and configuration changes
-* `refactor/<name>` - Code restructuring without changing functionality
-
-Examples:
+**Format**
 
 ```text
-feature/user-authentication
-feature/dashboard
-fix/login-validation
-docs/update-srs
-chore/setup-ci
-refactor/user-service
+<type>/issue-<number>-<short-description>
 ```
 
-## Pull Requests
-
-Meaningful changes should be developed in a working branch and submitted through a Pull Request targeting `dev`.
-
-Typical workflow:
+**Examples**
 
 ```text
-Working Branch → Pull Request → dev → main
+docs/issue-4-m1-workflow-diagrams
+docs/issue-8-m2-data-models
+chore/issue-15-project-initialization
+feat/issue-21-github-webhook
+fix/issue-34-pipeline-status
 ```
 
-Only `dev` should normally be merged into `main`.
+**Branch types**
 
-### Small Changes
+| Type | Use for |
+| --- | --- |
+| `docs` | UML/ER diagrams, Wiki-related documentation, README, SRS |
+| `chore` | Initial setup, dependencies, configuration, maintenance |
+| `feat` | New application functionality |
+| `fix` | Bug fixes |
+| `refactor` | Code restructuring without changing behavior |
+| `test` | Adding or updating tests |
+| `ci` | GitHub Actions and CI/CD workflows |
 
-Trivial, low-risk changes may be committed directly to `dev` when creating a separate branch and Pull Request would add unnecessary overhead.
+**Rules:** Use lowercase and hyphens, avoid spaces, and describe the deliverable rather than the person working on it. Start your branch from the team-agreed target branch and keep it short-lived.
 
-Examples include:
+## 3. Commit Messages
 
-* Fixing a typo
-* Updating a documentation link
-* Correcting a small README mistake
-* Minor configuration/documentation updates
+Use **Conventional Commits**.
 
-Changes that affect application behavior, architecture, database structure, security, or significant functionality should use a working branch and Pull Request.
-
-## Commit Messages
-
-Write clear commit messages that briefly describe the change.
-
-Examples:
+**Format**
 
 ```text
-feat: add user authentication
-fix: correct login validation
-docs: update development setup
-chore: configure linting
-refactor: simplify user service
+<type>(<scope>): <action-oriented description>
 ```
 
-Use the following prefixes where appropriate:
+Common scopes: `m1`, `m2`, `m3`, `m4`, `m5`, `web`, `api`, `repo`, `docs`.
 
-* `feat:` - New functionality
-* `fix:` - Bug fix
-* `docs:` - Documentation
-* `chore:` - Maintenance
-* `refactor:` - Refactoring
-* `test:` - Tests
-* `style:` - Formatting/style changes
+**Examples**
 
-## Pull Request Guidelines
+```text
+docs(m1): add pipeline activity diagrams
+docs(m4): correct approval sequence diagram
+chore(repo): initialize ChainOps monorepo
+chore(repo): configure linting and formatting
+feat(api): add project creation endpoint
+feat(web): add project dashboard
+fix(m3): prevent duplicate indexed events
+ci(repo): add pull request checks
+```
 
-Before creating a Pull Request:
+**Guidelines**
 
-* Make sure the code builds/runs correctly.
-* Test the changes relevant to your work.
-* Keep the Pull Request focused on one logical change.
-* Provide a clear title and description.
-* Resolve review comments before merging.
+- Write a short, specific description, starting with a verb such as `add`, `update`, `fix`, `refine`, or `configure`.
+- Commit a meaningful unit of work. **One or two commits are fine for an entire repository setup** if the changes form one coherent task.
+- Avoid vague messages such as `final`, `done`, `updates`, or `fix stuff`.
+- Do not commit secrets, private keys, tokens, real `.env` files, build outputs, or dependency folders.
 
-## Code Review
+## 4. Pull Request Titles
 
-Team members should review meaningful changes before they are merged into `dev`.
+Use the **same Conventional Commit format** as commit messages, but summarize the **whole PR**.
 
-At least one team member should approve a Pull Request before merging when review is required.
+```text
+docs(m1): add pipeline workflow diagrams
+chore(repo): initialize ChainOps monorepo
+feat(api): implement GitHub webhook handling
+fix(web): correct pipeline status display
+```
 
-## General Principles
+A PR may contain multiple meaningful commits; its title should describe the combined change.
 
-* Do not push directly to `main`.
-* Do not force-push shared branches.
-* Keep commits reasonably focused.
-* Keep documentation updated when significant changes are made.
-* Ask the team before making major architectural or technology decisions.
-* Prefer small, understandable Pull Requests over large unrelated changes.
+## 5. Pull Request Description
 
----
+Keep PR descriptions concise. Copy this template:
 
-**ChainOps · Intelli Coders · Intelli Collective**
+```markdown
+## Summary
+Briefly explain what this PR adds or changes.
+
+## Changes
+- First main change
+- Second main change
+
+## Checklist
+- [ ] Changes reviewed locally
+- [ ] Relevant diagrams / documentation / tests updated (if applicable)
+- [ ] No secrets or unrelated files included
+
+Closes #ISSUE_NUMBER
+```
+
+For diagram PRs, mention the **Use Case, Activity, Sequence, Class, or ER** diagrams changed and include editable source files. For implementation PRs, say how the changes were tested, even if it is just a brief local run check.
+
+### Linking an Issue
+
+- Use `Closes #4` (replace `4`) when the PR **fully completes** the issue.
+- Use `Refs #4` when the PR is only **partial work** and should not close the issue.
+- **Important:** GitHub's native closing keywords normally auto-close linked issues when the PR is merged into the repository's **default branch**. A merge into a non-default branch such as `diagram` does **not** automatically close the issue through the keyword alone. In that case, either complete the integration into the default branch or use a separately configured automation/manual closure.
+
+## 6. Review and Merge Rules
+
+1. Create a branch for the issue and push your changes.
+2. Open a PR into the **team-agreed target branch**; do not assume every PR goes to `main`.
+3. Add a clear title and description, and link the issue.
+4. Request at least **one other team member** to review the PR.
+5. Resolve review feedback before merging. For cross-module changes, involve the affected module owner.
+6. Prefer **Squash and Merge** to keep the integration history clean; delete merged branches when no longer needed.
+7. Do not push directly to protected/shared integration branches unless the team has explicitly agreed on an exception.
+
+## 7. GitHub Projects Status
+
+Track the **issue** as the task, not both the issue and its PR as duplicate tasks.
+
+| Status | When to use |
+| --- | --- |
+| **Todo** | Issue created and ready |
+| **In Progress** | Work has started |
+| **In Review** | PR opened and awaiting review |
+| **Done** | Changes accepted, merged, and issue completed |
+
+For now, move the issue to **In Review** manually unless a GitHub Action has been configured to do so. The built-in **Item closed → Done** workflow can update the issue's project status after closure. If using project auto-add, filter for `is:issue` to avoid adding PRs as separate project tasks.
+
+## 8. Files and Quality Checks
+
+**Diagrams/documentation**
+- Commit the **editable diagram source** (`.drawio`, `.puml`, etc.) alongside a readable exported version when useful.
+- Use descriptive filenames and keep diagrams under the appropriate module documentation folder.
+- Check UML notation, readability, and cross-module consistency before requesting review.
+
+**Application code**
+- Keep frontend changes in the agreed React + Vite area and backend changes in the NestJS area.
+- Follow the repository's established linting, formatting, and test commands once configured.
+- Keep unrelated refactoring out of task-specific PRs.
+
+## 9. Quick Examples
+
+**Diagram task (Issue #4)**
+
+```text
+Branch:     docs/issue-4-m1-workflow-diagrams
+Commit:     docs(m1): add pipeline activity diagrams
+PR title:   docs(m1): add pipeline workflow diagrams
+PR footer:  Closes #4
+```
+
+**Repository initialization (example Issue #15)**
+
+```text
+Branch:     chore/issue-15-project-initialization
+Commit:     chore(repo): initialize ChainOps monorepo
+PR title:   chore(repo): initialize ChainOps monorepo
+PR footer:  Closes #15
+```
+
+> For detailed architecture, system diagrams, module descriptions, and decisions, see the [ChainOps Wiki](https://github.com/intelli-collective/ChainOps/wiki). This file is the team's **contribution policy**, not the full project documentation.
