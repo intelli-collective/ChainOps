@@ -71,13 +71,12 @@ export function LandingPage() {
             <li><LandingIcon name="link" /><span>End-to-End<br />Traceability</span></li>
           </ul>
         </div>
-      </section>
-
-      <section id="integrations" className="landing-integrations landing-section-border" aria-labelledby="landing-integrations-title">
-        <div className="landing-container">
-          <h2 className="landing-eyebrow" id="landing-integrations-title">Works with industry standards</h2>
-          <ul className="landing-partners">{integrations.map((item) => <li key={item.name}><LandingIcon name={item.icon} className={item.className} /><span>{item.name}</span></li>)}</ul>
-        </div>
+        <section id="integrations" className="landing-integrations" aria-labelledby="landing-integrations-title">
+          <div className="landing-container">
+            <h2 className="landing-eyebrow" id="landing-integrations-title">Works with industry standards</h2>
+            <ul className="landing-partners">{integrations.map((item) => <li key={item.name}><LandingIcon name={item.icon} className={item.className} /><span>{item.name}</span></li>)}</ul>
+          </div>
+        </section>
       </section>
 
       <section id="workflow" className="landing-workflow landing-section-border" aria-labelledby="landing-workflow-title">
