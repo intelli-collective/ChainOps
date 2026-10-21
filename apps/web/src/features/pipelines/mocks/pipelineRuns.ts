@@ -4,6 +4,7 @@ export const MOCK_PROJECT_ID = 'chainvault'
 
 /** Development fixtures mirroring the approved Pipeline Runs Figma frame. */
 export const pipelineRuns: PipelineRun[] = [
+  { id: 'run-129', projectId: MOCK_PROJECT_ID, runNumber: 129, commitSha: 'b72e4d19c5a3f8e0d6b2a9c4f1e7d3b5a8c0e6f2', branch: 'main', trigger: 'manual', status: 'running', author: 'Daniel Kim', startedAt: '2026-10-29T09:12:00', durationSeconds: null },
   { id: 'run-128', projectId: MOCK_PROJECT_ID, runNumber: 128, commitSha: 'a3f9c2e8b1d4f6a0c9e2b7d5a1f3c8e6b4d2a0f9', branch: 'main', trigger: 'push', status: 'success', author: 'Daniel Kim', startedAt: '2026-10-28T14:32:00', durationSeconds: 272 },
   { id: 'run-127', projectId: MOCK_PROJECT_ID, runNumber: 127, commitSha: '98bd4f1c2a7e5d3b9f0c6a8e1d4b7f2a5c3e9d0b', branch: 'main', trigger: 'push', status: 'failed', author: 'Alex Rivera', startedAt: '2026-10-28T14:32:00', durationSeconds: 271 },
   { id: 'run-126', projectId: MOCK_PROJECT_ID, runNumber: 126, commitSha: 'e7c1d0a4b9f2e6c3a8d5b1f7e0c4a9d2b6f3e8c1', branch: 'feature/fees', trigger: 'pull_request', status: 'success', author: 'Maya Chen', startedAt: '2026-10-27T14:32:00', durationSeconds: 270 },
