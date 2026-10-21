@@ -38,3 +38,10 @@ The brand uses the original public/logo.jpg and public/branding.jpg. CSS crops t
 branding image's existing symbol to avoid duplicating the separate logo. Asset
 colors are preserved; black image backgrounds blend with the sidebar. Defaults
 respect Vite's configured base URL. Both asset paths can be overridden.
+
+Colors follow the Final UI Color Specification: solid #0A1010 sidebar,
+#034139 selected rows, #075047 selected hover, #111A18 ordinary hover,
+#EDF3F1 active text, #A4B3AF default labels, and #57C7BD small accents.
+There are no decorative gradients, glows, or shadows. Scoped sidebar variables
+use the shared `--co-*` semantic tokens when available, with specification values
+as fallbacks. Layout, compact spacing, navigation, and brand assets are preserved.
