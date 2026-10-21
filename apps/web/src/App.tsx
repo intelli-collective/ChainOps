@@ -28,12 +28,11 @@ function ProjectPage({ page }: { page: 'pipelines' | 'deployments' | 'contracts'
 
 export default function App() {
   return <BrowserRouter><Routes>
+    <Route path="/" element={<LandingPage />} />
     <Route path="/login" element={<AuthPage mode="login" />} />
     <Route path="/register" element={<AuthPage mode="register" />} />
     {/* Future server-backed authentication belongs at this boundary. No simulated security guard. */}
     <Route element={<ApplicationLayout />}>
-        <Route path="/" element={<LandingPage />} />
-        <Route index element={<Navigate to="/dashboard" replace />} />
       <Route path="/dashboard" element={<DashboardPlaceholder />} />
       <Route path="/projects" element={<RoutePlaceholder title="Projects" />} />
       <Route path="/projects/:projectId/pipelines" element={<ProjectPage page="pipelines" />} />
