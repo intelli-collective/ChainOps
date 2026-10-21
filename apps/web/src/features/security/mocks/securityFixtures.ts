@@ -4,7 +4,33 @@ export const mockProjectId = 'chainvault'
 
 // Illustrative design fixtures, not real Slither output or detector classifications.
 const findings: SecurityFinding[] = [
-  { id: 'SLT-001', title: 'Reentrancy vulnerability', contract: 'Vault.sol', severity: 'high', status: 'open', detectedAt: '2026-10-20T10:00:00Z' },
+  {
+    id: 'SLT-001', title: 'Reentrancy vulnerability', contract: 'Vault.sol', severity: 'high', status: 'open',
+    detectedAt: '2026-10-20T14:22:00+05:30', detector: 'Slither',
+    description: 'Static analysis finding, not a verified exploit.',
+    sourceLocation: { file: 'Vault.sol', line: 128 },
+    sourceContext: {
+      highlightedLine: 128,
+      lines: [
+        { number: 120, text: 'function withdraw(uint256 amount) external {' },
+        { number: 121, text: '   require(amount > 0, "Amount must be greater than 0");' },
+        { number: 122, text: '   uint256 balance = balances[msg.sender];' },
+        { number: 123, text: '   require(balance >= amount, "Insufficient balance");' },
+        { number: 124, text: '   // External call before state update' },
+        { number: 125, text: '   (bool success, ) = msg.sender.call{value: amount}("");' },
+        { number: 128, text: '   require(success, "Transfer failed");' },
+        { number: 129, text: '   balances[msg.sender] -= amount;' },
+        { number: 130, text: '   emit Withdrawn(msg.sender, amount);' },
+        { number: 131, text: '}' },
+      ],
+    },
+    explanation: 'An external call occurs before updating the user’s balance. Review whether re-entry could occur before the state update.',
+    remediation: {
+      summary: 'Update state before external calls and consider a reentrancy guard.',
+      guidance: 'Update the withdrawal balance before transferring value. Consider a reentrancy guard and rerun analysis after the change.',
+    },
+    evidence: { summary: 'The value transfer in withdraw occurs before balances[msg.sender] is reduced.' },
+  },
   { id: 'SLT-002', title: 'Untrusted external call', contract: 'Vault.sol', severity: 'medium', status: 'open', detectedAt: '2026-10-20T10:00:00Z' },
   { id: 'SLT-003', title: 'State variable could be const', contract: 'Vault.sol', severity: 'medium', status: 'acknowledged', detectedAt: '2026-10-20T10:00:00Z' },
   { id: 'SLT-004', title: 'Unused variable', contract: 'Token.sol', severity: 'low', status: 'open', detectedAt: '2026-10-20T10:00:00Z' },

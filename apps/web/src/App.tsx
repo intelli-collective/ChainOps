@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { AuthPage } from './features/auth/AuthPage'
 import { DeploymentPage } from './features/deployments'
 import { ContractRegistryPage } from './features/contracts'
+import { LandingPage } from './features/landing/LandingPage'
 import './App.css'
 
 const registryPath = '/projects/chainvault/contracts'
@@ -35,6 +36,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/register" element={<AuthPage mode="register" />} />
         <Route path="/deployments" element={<DeploymentPreview />} />
