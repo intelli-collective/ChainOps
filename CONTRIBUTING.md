@@ -1,145 +1,175 @@
 # Contributing to ChainOps
 
-ChainOps is a five-member academic project for smart-contract DevSecOps. We use GitHub Issues and Projects to plan work, pull requests to review it, and the GitHub Wiki to explain design decisions and system behavior.
+This guide defines the Git and GitHub conventions for the ChainOps team. It applies to **design documentation** and **implementation** (React + Vite frontend, NestJS backend, and supporting services).
 
-> **Current phase:** OOAD diagrams and system design. The rules below also apply during implementation, with additional checks added when code exists.
+> Keep changes focused, reference the relevant GitHub issue, and use pull requests for review. One logical change can be one commit; multiple commits are not required just because multiple files changed.
 
-## 1. Before you start
+## 1. Working with GitHub Issues
 
-1. Pick an assigned **repository Issue** (not a GitHub Projects draft item).
-2. Read its scope and acceptance criteria; check for dependencies and duplicates.
-3. Update the issue's GitHub Projects status to **In Progress**.
-4. Create one focused branch from the **agreed integration branch**. Confirm that branch in the repository before starting; do not assume it is `main`.
+- Create or use an existing GitHub issue before starting a tracked task.
+- Assign an owner and use the existing GitHub Project to track progress.
+- Prefer **one issue → one branch → one pull request** for a focused task.
+- The issue number in branch examples below is a placeholder. Always use the actual GitHub issue number.
+- Avoid creating separate issues or commits for every small setup step if they belong to one deliverable.
 
-## 2. Branch names
+## 2. Branch Naming
 
-Format: `<type>/issue-<number>-<short-description>`
+**Format**
+
+```text
+<type>/issue-<number>-<short-description>
+```
+
+**Examples**
 
 ```text
 docs/issue-4-m1-workflow-diagrams
-docs/issue-15-m2-deployment-erd
-docs/issue-18-m3-monitoring-sequence
-feat/issue-32-github-webhook
-fix/issue-48-deployment-timeout
+docs/issue-8-m2-data-models
+chore/issue-15-project-initialization
+feat/issue-21-github-webhook
+fix/issue-34-pipeline-status
 ```
 
-- `issue-4` refers to the actual issue number, **#4**.
-- Use lowercase and hyphens; keep names descriptive.
-- During the design phase, use `docs/` for UML, ERD, specifications, and supporting documentation.
-- Usually use **one branch and one PR per issue**; a branch may have many commits.
+**Branch types**
 
-## 3. Commit messages
+| Type | Use for |
+| --- | --- |
+| `docs` | UML/ER diagrams, Wiki-related documentation, README, SRS |
+| `chore` | Initial setup, dependencies, configuration, maintenance |
+| `feat` | New application functionality |
+| `fix` | Bug fixes |
+| `refactor` | Code restructuring without changing behavior |
+| `test` | Adding or updating tests |
+| `ci` | GitHub Actions and CI/CD workflows |
 
-Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
+**Rules:** Use lowercase and hyphens, avoid spaces, and describe the deliverable rather than the person working on it. Start your branch from the team-agreed target branch and keep it short-lived.
 
-`<type>(<scope>): <imperative description>`
+## 3. Commit Messages
+
+Use **Conventional Commits**.
+
+**Format**
 
 ```text
-docs(m1): add pipeline use case diagrams
-docs(m1): refine webhook failure activity flow
-docs(m2): model deployment transaction sequence
-docs(m3): correct event indexing ER cardinalities
-docs(m4): update release approval class diagram
-docs(m5): add workspace membership use cases
+<type>(<scope>): <action-oriented description>
 ```
 
-| Type | Purpose |
-| --- | --- |
-| `docs` | Diagrams and documentation (use this most often now) |
-| `feat` | New functionality, later |
-| `fix` | Fix behavior, later |
-| `refactor` | Code-only structural improvements, later |
-| `test` | Tests, later |
-| `chore` | Tooling and maintenance |
-| `ci` | Automation and CI workflows |
+Common scopes: `m1`, `m2`, `m3`, `m4`, `m5`, `web`, `api`, `repo`, `docs`.
 
-Use `m1`–`m5` for module scope, or `shared`, `architecture`, `wiki`, or `repo` for shared changes. Avoid `final`, `updates`, `done`, and huge mixed commits.
+**Examples**
 
-## 4. Pull requests
+```text
+docs(m1): add pipeline activity diagrams
+docs(m4): correct approval sequence diagram
+chore(repo): initialize ChainOps monorepo
+chore(repo): configure linting and formatting
+feat(api): add project creation endpoint
+feat(web): add project dashboard
+fix(m3): prevent duplicate indexed events
+ci(repo): add pull request checks
+```
 
-**PR title format:** `<type>(<scope>): <summary>`
+**Guidelines**
 
-Example: `docs(m1): add pipeline and execution workflow diagrams`
+- Write a short, specific description, starting with a verb such as `add`, `update`, `fix`, `refine`, or `configure`.
+- Commit a meaningful unit of work. **One or two commits are fine for an entire repository setup** if the changes form one coherent task.
+- Avoid vague messages such as `final`, `done`, `updates`, or `fix stuff`.
+- Do not commit secrets, private keys, tokens, real `.env` files, build outputs, or dependency folders.
 
-**Short PR description:**
+## 4. Pull Request Titles
+
+Use the **same Conventional Commit format** as commit messages, but summarize the **whole PR**.
+
+```text
+docs(m1): add pipeline workflow diagrams
+chore(repo): initialize ChainOps monorepo
+feat(api): implement GitHub webhook handling
+fix(web): correct pipeline status display
+```
+
+A PR may contain multiple meaningful commits; its title should describe the combined change.
+
+## 5. Pull Request Description
+
+Keep PR descriptions concise. Copy this template:
 
 ```markdown
 ## Summary
-Added the M1 use-case, activity, and sequence diagrams.
+Briefly explain what this PR adds or changes.
 
 ## Changes
-- Use-case diagrams
-- Activity diagrams
-- Sequence diagrams
+- First main change
+- Second main change
 
 ## Checklist
-- [ ] UML notation checked
-- [ ] Editable source files included
-- [ ] Diagrams reviewed for module consistency
+- [ ] Changes reviewed locally
+- [ ] Relevant diagrams / documentation / tests updated (if applicable)
+- [ ] No secrets or unrelated files included
 
-Closes #4
+Closes #ISSUE_NUMBER
 ```
 
-- Use `Closes #N` **only if the PR completes issue #N**; use `Refs #N` for partial work.
-- Link the actual repository issue rather than relying on the branch name.
-- Request at least **one review from another member**; ask a related module owner for cross-module changes.
-- Resolve review comments and use **Squash and merge** if permitted by the repository.
-- Don't push directly to a protected integration branch, force-push shared branches, or commit credentials.
+For diagram PRs, mention the **Use Case, Activity, Sequence, Class, or ER** diagrams changed and include editable source files. For implementation PRs, say how the changes were tested, even if it is just a brief local run check.
 
-### About closing issues and updating GitHub Projects
+### Linking an Issue
 
-GitHub's built-in `Closes #N` issue closure normally happens when a qualifying PR is merged into the **repository's default branch**. Merging to a separate `diagram` branch will **not normally auto-close the issue**. The team must either:
+- Use `Closes #4` (replace `4`) when the PR **fully completes** the issue.
+- Use `Refs #4` when the PR is only **partial work** and should not close the issue.
+- **Important:** GitHub's native closing keywords normally auto-close linked issues when the PR is merged into the repository's **default branch**. A merge into a non-default branch such as `diagram` does **not** automatically close the issue through the keyword alone. In that case, either complete the integration into the default branch or use a separately configured automation/manual closure.
 
-1. Target the repository's default branch for completed issue PRs; **or**
-2. Configure a reviewed GitHub Actions workflow that intentionally closes linked issues on merge into `diagram`.
+## 6. Review and Merge Rules
 
-GitHub Projects has **separate issue and PR items**. To track only issues, configure Auto-add filtering for `is:issue`. Moving the issue to **In Review** when a PR opens is manual until a custom automation is installed. The built-in **Item closed → Done** workflow can update the existing issue's project item after it closes. Do not claim these automations are enabled until the team verifies them.
+1. Create a branch for the issue and push your changes.
+2. Open a PR into the **team-agreed target branch**; do not assume every PR goes to `main`.
+3. Add a clear title and description, and link the issue.
+4. Request at least **one other team member** to review the PR.
+5. Resolve review feedback before merging. For cross-module changes, involve the affected module owner.
+6. Prefer **Squash and Merge** to keep the integration history clean; delete merged branches when no longer needed.
+7. Do not push directly to protected/shared integration branches unless the team has explicitly agreed on an exception.
 
-## 5. OOAD diagram quality rules
+## 7. GitHub Projects Status
 
-Current issues are organized as **two design tasks per member**: (1) use-case, activity, sequence workflows and (2) class, ER/data models.
+Track the **issue** as the task, not both the issue and its PR as duplicate tasks.
 
-- Follow the department's taught UML/ER notation: actors and system boundary, correct `«include»`/`«extend»`, activity guards and endpoints, sequence messages, class associations and multiplicities, ER attributes and keys.
-- Use descriptive, consistent diagram filenames, e.g., `m1-pipeline-activity.drawio` or `m2-deployment-class.puml`.
-- Commit **editable sources** (`.drawio`, `.puml`, etc.) and readable exports (`.svg` or `.pdf`) when useful.
-- Check diagram readability, labels, cross-module terminology, and consistency with agreed requirements.
-- Keep source diagrams in version-controlled `docs/diagrams/`; use the Wiki for explanations and links to authoritative files.
-- If a decision remains unconfirmed, note it as **Proposed** or **Open**, not finalized.
+| Status | When to use |
+| --- | --- |
+| **Todo** | Issue created and ready |
+| **In Progress** | Work has started |
+| **In Review** | PR opened and awaiting review |
+| **Done** | Changes accepted, merged, and issue completed |
 
-## 6. Issue lifecycle and Definition of Done
+For now, move the issue to **In Review** manually unless a GitHub Action has been configured to do so. The built-in **Item closed → Done** workflow can update the issue's project status after closure. If using project auto-add, filter for `is:issue` to avoid adding PRs as separate project tasks.
 
-`Todo → In Progress → In Review → Done`
+## 8. Files and Quality Checks
 
-A design issue is **Done** when its assigned diagrams are complete, editable files are committed, notation and module dependencies are reviewed, the PR is merged to the agreed branch, and the issue/project status reflects the team's completion policy. A PR being opened does not by itself complete the issue.
+**Diagrams/documentation**
+- Commit the **editable diagram source** (`.drawio`, `.puml`, etc.) alongside a readable exported version when useful.
+- Use descriptive filenames and keep diagrams under the appropriate module documentation folder.
+- Check UML notation, readability, and cross-module consistency before requesting review.
 
-For development tasks later, add test evidence, implementation notes, and relevant security checks.
+**Application code**
+- Keep frontend changes in the agreed React + Vite area and backend changes in the NestJS area.
+- Follow the repository's established linting, formatting, and test commands once configured.
+- Keep unrelated refactoring out of task-specific PRs.
 
-## 7. Documentation: repository vs Wiki
+## 9. Quick Examples
 
-- `README.md`: concise introduction and navigation.
-- `CONTRIBUTING.md`: contribution policy, maintained in the main repository.
-- `docs/`: source-controlled requirements, diagrams, decisions and other authoritative artifacts.
-- [Wiki](https://github.com/intelli-collective/ChainOps/wiki): understandable explanations, module overviews, terminology, decisions, team onboarding, and links to source files.
-- Avoid maintaining two conflicting copies of a diagram or specification. Prefer linking from the Wiki to the repository file.
+**Diagram task (Issue #4)**
 
-## 8. Suggested everyday commands
-
-```bash
-# Run from the local repository; replace <integration-branch> and issue details.
-git fetch origin
-git switch <integration-branch>
-git pull --ff-only origin <integration-branch>
-git switch -c docs/issue-4-m1-workflow-diagrams
-
-# After editing:
-git status
-git add docs/diagrams/
-git commit -m "docs(m1): add pipeline activity diagrams"
-git push -u origin docs/issue-4-m1-workflow-diagrams
+```text
+Branch:     docs/issue-4-m1-workflow-diagrams
+Commit:     docs(m1): add pipeline activity diagrams
+PR title:   docs(m1): add pipeline workflow diagrams
+PR footer:  Closes #4
 ```
 
-Create a PR against the **team-agreed target branch**. Check both PR base and issue-linking behavior before merging.
+**Repository initialization (example Issue #15)**
 
----
+```text
+Branch:     chore/issue-15-project-initialization
+Commit:     chore(repo): initialize ChainOps monorepo
+PR title:   chore(repo): initialize ChainOps monorepo
+PR footer:  Closes #15
+```
 
-**Questions or exceptions:** discuss them in the related issue or PR so the decision remains traceable.
+> For detailed architecture, system diagrams, module descriptions, and decisions, see the [ChainOps Wiki](https://github.com/intelli-collective/ChainOps/wiki). This file is the team's **contribution policy**, not the full project documentation.
