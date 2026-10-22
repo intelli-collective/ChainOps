@@ -11,6 +11,17 @@ import { OAuthController } from './auth/oauth.controller.js';
 import { MonitoringController } from './monitoring/monitoring.controller.js';
 import { MonitoringService } from './monitoring/monitoring.service.js';
 import { MonitoringAuthGuard } from './monitoring/monitoring-auth.guard.js';
+import { PipelineConfigController } from './pipelines/pipeline-config.controller.js';
+import { PipelineConfigService } from './pipelines/pipeline-config.service.js';
+import { AccessTokenGuard } from './pipelines/access-token.guard.js';
+import { ProjectAccessService } from './security-governance/project-access.service.js';
+import { SecurityPolicyController } from './security-governance/security-policy.controller.js';
+import { SecurityPolicyService } from './security-governance/security-policy.service.js';
+import { ApprovalRequestController } from './security-governance/approval-request.controller.js';
+import { ApprovalRequestService } from './security-governance/approval-request.service.js';
+import { ContractsController } from './contracts/contracts.controller.js';
+import { ContractsService } from './contracts/contracts.service.js';
+import { ContractsGuard } from './contracts/contracts.guard.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -25,7 +36,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'api',
     }),
   ],
-  controllers: [AppController, HealthController, AuthController, OAuthController, MonitoringController],
-  providers: [AppService, DatabaseService, AuthService, OAuthService, MonitoringService, MonitoringAuthGuard],
+  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, MonitoringController],
+  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard],
 })
 export class AppModule {}

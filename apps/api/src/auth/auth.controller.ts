@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Post, Req, Res, ForbiddenException, Inject } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, Inject } from '@nestjs/common';
 import type { Request, Response, CookieOptions } from 'express';
-import { timingSafeEqual } from 'node:crypto';
 import { AuthService, opaque } from './auth.service.js';
 import { authConfig } from './config.js';
+import { requireCsrf } from './csrf.js';
 
 @Controller('auth')
 export class AuthController {
@@ -12,24 +12,27 @@ export class AuthController {
     const c = authConfig();
     return { httpOnly: true, secure: c.secure, sameSite: c.sameSite, path: '/auth' };
   }
+  private accessOptions(): CookieOptions { return { ...this.options(), path: '/' }; }
   protected cookies(req: Request): Record<string,string> { return (req.cookies ?? {}) as Record<string,string>; }
-  private csrf(req: Request) {
-    const cookie = this.cookies(req).chainops_csrf, header = req.get('X-CSRF-Token');
-    if (req.get('origin') !== authConfig().origin || !cookie || !header || !/^[\w-]{43}$/.test(cookie) || !/^[\w-]{43}$/.test(header) || !timingSafeEqual(Buffer.from(cookie),Buffer.from(header))) throw new ForbiddenException('Invalid request origin or CSRF token');
-  }
+  private csrf(req: Request) { requireCsrf(req); }
   protected session(res: Response, tokens: { access: string; refresh: string }) {
-    res.cookie('chainops_access',tokens.access,{ ...this.options(), maxAge: 600000 });
+    res.clearCookie('chainops_access', this.options());
+    res.cookie('chainops_access',tokens.access,{ ...this.accessOptions(), maxAge: 600000 });
     res.cookie('chainops_refresh',tokens.refresh,{ ...this.options(), maxAge: 30*86400000 });
   }
   private clear(res: Response) {
     for (const name of ['chainops_access','chainops_refresh','chainops_csrf','chainops_oauth']) res.clearCookie(name,this.options());
+    // Clear both the new global access cookie and pre-fix /auth cookies.
+    res.clearCookie('chainops_access', this.accessOptions());
+    res.clearCookie('chainops_csrf', this.accessOptions());
   }
   @Get('csrf')
   csrfToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const existing = this.cookies(req).chainops_csrf;
     const token = existing && /^[\w-]{43}$/.test(existing) ? existing : opaque();
     res.setHeader('Cache-Control','no-store');
-    res.cookie('chainops_csrf',token,{ ...this.options(), maxAge: 86400000 });
+    res.clearCookie('chainops_csrf', this.options());
+    res.cookie('chainops_csrf',token,{ ...this.accessOptions(), maxAge: 86400000 });
     return { csrfToken: token };
   }
   @Post('register')

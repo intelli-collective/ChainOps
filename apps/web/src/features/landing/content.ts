@@ -24,11 +24,11 @@ export const benefits: { title: string; description: string; icon: LandingIconNa
   { title: 'Stay informed in production', description: 'Real-time monitoring and configurable alerts.', icon: 'cube' },
 ]
 
-export const integrations: { name: string; icon: LandingIconName; className?: string }[] = [
-  { name: 'GitHub', icon: 'github' },
-  { name: 'Hardhat', icon: 'helmet', className: 'landing-partner-yellow' },
-  { name: 'Foundry', icon: 'foundry', className: 'landing-partner-blue' },
-  { name: 'Slither', icon: 'slither', className: 'landing-partner-teal' },
-  { name: 'Ethereum', icon: 'ethereum' },
+export const integrations: { name: string; logo?: string; icon?: LandingIconName }[] = [
+  { name: 'GitHub', logo: '/partner-logos/github.svg' },
+  { name: 'Hardhat', logo: '/partner-logos/hardhat.svg' },
+  { name: 'Foundry', logo: '/partner-logos/foundry.png' },
+  { name: 'Slither', logo: '/partner-logos/slither.png' },
+  { name: 'Ethereum', logo: '/partner-logos/ethereum.png' },
   { name: 'Other EVM Networks', icon: 'network' },
 ]
