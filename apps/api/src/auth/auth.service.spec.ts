@@ -1,11 +1,17 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { AuthService, credentials, digest } from './auth.service.js';
+import { AuthService, credentials, digest, validateNewPassword } from './auth.service.js';
 import { authConfig } from './config.js';
 import { DatabaseService } from '../database/database.service.js';
 import { OAuthService } from './oauth.service.js';
 
 afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe('authentication validation', () => {
+  it('requires eight characters for new passwords and caps resource use', () => {
+    expect(() => validateNewPassword('1234567')).toThrow('Password must be at least 8 characters.');
+    expect(() => validateNewPassword('12345678')).not.toThrow();
+    expect(() => validateNewPassword('x'.repeat(129))).toThrow('at most 128');
+    expect(() => credentials({email:'member@example.test',password:'12345678',fullName:'Member',acceptedTerms:true},true)).not.toThrow();
+  });
   it('normalizes emails and rejects invalid registration data', () => {
     expect(credentials({ email: ' USER@example.test ', password: 'long password value', fullName: ' Name ', acceptedTerms: true },true).email).toBe('user@example.test');
     for (const body of [null, {}, { email: 'bad', password: 'test' }, { email: 'a@b.test', password: 'short', fullName: 'Name', acceptedTerms: true }]) expect(() => credentials(body,true)).toThrow();

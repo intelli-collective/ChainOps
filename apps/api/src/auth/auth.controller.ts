@@ -57,4 +57,13 @@ export class AuthController {
   async verify(@Req() req: Request, @Body() body: { token?: unknown }) { this.csrf(req); await this.auth.rateLimit(req.ip ?? 'unknown','verify'); return this.auth.verifyEmail(body?.token); }
   @Post('verification/resend')
   async resend(@Req() req: Request, @Body() body: unknown) { this.csrf(req); await this.auth.rateLimit(req.ip ?? 'unknown','resend'); return this.auth.resend(body); }
+  @Post('forgot-password')
+  async forgotPassword(@Req() req: Request, @Body() body: unknown) { this.csrf(req); await this.auth.rateLimit(req.ip ?? 'unknown','forgot-password'); return this.auth.forgotPassword(body); }
+  @Post('reset-password')
+  async resetPassword(@Req() req: Request, @Body() body: unknown, @Res({ passthrough: true }) res: Response) {
+    this.csrf(req); await this.auth.rateLimit(req.ip ?? 'unknown','reset-password');
+    const result = await this.auth.resetPassword(body);
+    this.clear(res);
+    return result;
+  }
 }
