@@ -19,6 +19,7 @@ const projectA = randomUUID();
 const projectB = randomUUID();
 const projectC = randomUUID();
 const missingProject = randomUUID();
+const knownProjects: readonly string[] = [projectA, projectB, projectC];
 const aliceId = randomUUID();
 const bobId = randomUUID();
 const csrf = 's'.repeat(43);
@@ -60,7 +61,7 @@ describe('security governance access across all four routes', () => {
       if (sql.includes('from projects p')) {
         const projectId = values[0] as string;
         const userId = values[1] as string;
-        if (![projectA, projectB, projectC].includes(projectId)) return { rows: [] };
+        if (!knownProjects.includes(projectId)) return { rows: [] };
         const allowed = projectId === projectB ? userId === bobId : userId === aliceId;
         return { rows: [{ id: projectId, member_user_id: allowed ? userId : null }] };
       }
