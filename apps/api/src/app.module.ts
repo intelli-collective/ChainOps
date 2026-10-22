@@ -8,6 +8,9 @@ import { AuthController } from './auth/auth.controller.js';
 import { AuthService } from './auth/auth.service.js';
 import { OAuthService } from './auth/oauth.service.js';
 import { OAuthController } from './auth/oauth.controller.js';
+import { MonitoringController } from './monitoring/monitoring.controller.js';
+import { MonitoringService } from './monitoring/monitoring.service.js';
+import { MonitoringAuthGuard } from './monitoring/monitoring-auth.guard.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -22,7 +25,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'api',
     }),
   ],
-  controllers: [AppController, HealthController, AuthController, OAuthController],
-  providers: [AppService, DatabaseService, AuthService, OAuthService],
+  controllers: [AppController, HealthController, AuthController, OAuthController, MonitoringController],
+  providers: [AppService, DatabaseService, AuthService, OAuthService, MonitoringService, MonitoringAuthGuard],
 })
 export class AppModule {}
