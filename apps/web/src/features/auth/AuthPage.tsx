@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { EthereumArtwork } from './EthereumArtwork'
-import { demoAccount, mockAuthService } from './mockAuthService'
+import { apiAuthService, authRequest } from './api'
 import type { AuthService } from './types'
 
 type Fields = { fullName: string; email: string; password: string; acceptedTerms: boolean }
@@ -20,7 +20,7 @@ const copy = {
   },
 }
 
-export function AuthPage({ mode, service = mockAuthService }: {
+export function AuthPage({ mode, service = apiAuthService }: {
   mode: 'login' | 'register'; service?: AuthService
 }) {
   // Keying the form keeps credentials and messages from carrying between routes.
@@ -29,6 +29,8 @@ export function AuthPage({ mode, service = mockAuthService }: {
 
 function AuthForm({ mode, service }: { mode: 'login' | 'register'; service: AuthService }) {
   const register = mode === 'register'
+  const navigate = useNavigate()
+  const [search] = useSearchParams()
   const content = copy[mode]
   const [fields, setFields] = useState<Fields>({ fullName: '', email: '', password: '', acceptedTerms: false })
   const [errors, setErrors] = useState<Errors>({})
@@ -51,8 +53,8 @@ function AuthForm({ mode, service }: { mode: 'login' | 'register'; service: Auth
     if (register && !fields.fullName.trim()) next.fullName = 'Enter your full name.'
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email.trim())) next.email = 'Enter a valid email address.'
     if (!fields.password) next.password = 'Enter your password.'
-    else if (register && (fields.password.length < 8 || !/\d/.test(fields.password) || !/[^\w\s]/.test(fields.password))) {
-      next.password = 'Use at least 8 characters with a number and a symbol.'
+    else if (register && (fields.password.length < 12 || fields.password.length > 128)) {
+      next.password = 'Use 12–128 characters.'
     }
     if (register && !fields.acceptedTerms) next.acceptedTerms = 'You must agree to continue.'
     setErrors(next)
@@ -66,12 +68,11 @@ function AuthForm({ mode, service }: { mode: 'login' | 'register'; service: Auth
     try {
       const request = { ...fields, email: fields.email.trim(), fullName: fields.fullName.trim() }
       const result = register ? await service.register(request) : await service.login(request)
-      setNotice({ kind: 'success', text: register
-        ? `Demo registration succeeded for ${result.user.fullName}. No account was saved. You can try signing in with the demo credentials.`
-        : `Demo sign-in succeeded for ${result.user.fullName}. No authenticated session was created.` })
+      if (!register) navigate(result.nextPath ?? '/projects', { replace: true })
+      else setNotice({ kind: 'success', text: result.message ?? 'Check your email to verify ownership before signing in.' })
       setFields((previous) => ({ ...previous, password: '' }))
     } catch (error) {
-      setNotice({ kind: 'error', text: error instanceof Error ? error.message : 'Unable to complete the demo. Please try again.' })
+      setNotice({ kind: 'error', text: error instanceof Error ? error.message : 'Unable to complete sign-in. Please try again.' })
     } finally {
       setPending(false)
     }
@@ -112,7 +113,7 @@ function AuthForm({ mode, service }: { mode: 'login' | 'register'; service: Auth
             {errors.password && <p className="auth-error" id="password-error">{errors.password}</p>}
           </div>
           {register ? <>
-            <p className="auth-hint" id="password-hint">Use at least 8 characters with a number and a symbol.</p>
+            <p className="auth-hint" id="password-hint">Use 12–128 characters.</p>
             <div className="auth-consent"><input id="acceptedTerms" name="acceptedTerms" type="checkbox" checked={fields.acceptedTerms} onChange={(event) => update('acceptedTerms', event.target.checked)} aria-invalid={!!errors.acceptedTerms} aria-describedby={errors.acceptedTerms ? 'terms-error' : undefined} required />
               <label htmlFor="acceptedTerms">I agree to the <button type="button" className="auth-text-button" onClick={() => setInformation('Terms of Service')}>Terms of Service</button> and <button type="button" className="auth-text-button" onClick={() => setInformation('Privacy Policy')}>Privacy Policy</button>.</label>
             </div>
@@ -123,11 +124,19 @@ function AuthForm({ mode, service }: { mode: 'login' | 'register'; service: Auth
       </form>
       {notice && <p className={`auth-notice auth-notice--${notice.kind}`} role={notice.kind === 'error' ? 'alert' : 'status'}>{notice.text}</p>}
       <p className="auth-switch">{register ? 'Already have an account?' : 'New to ChainOps?'}{' '}<Link to={register ? '/login' : '/register'}>{register ? 'Sign in' : 'Create an account'}</Link></p>
-      <aside className="auth-demo"><strong>Development demo — mock authentication</strong><br />No real account or session is created. Use test credentials only.{!register && <><br />Email: {demoAccount.email}<br />Password: {demoAccount.password}</>}</aside>
+      {search.has('error') && <p role="alert" className="auth-error">Provider sign-in failed or is unavailable. Try again or use email and password.</p>}
+      <p><a className="auth-submit" href="/auth/google/start">Continue with Google</a></p>
+      <p><a className="auth-submit" href="/auth/github/start">Continue with GitHub</a></p>
+      <button className="auth-text-button" disabled={pending || !fields.email} onClick={async () => {
+        setPending(true)
+        try { const result = await authRequest<{ message: string }>('verification/resend', { email: fields.email }); setNotice({ kind: 'success', text: result.message }) }
+        catch (error) { setNotice({ kind: 'error', text: error instanceof Error ? error.message : 'Unable to send verification email' }) }
+        finally { setPending(false) }
+      }}>Resend verification email</button>
     </section>
     {information && <div className="auth-modal-backdrop"><section className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="info-title" onKeyDown={(event) => { if (event.key === 'Escape') setInformation(null) }}>
       <h2 id="info-title">{information}</h2>
-      <p>{information === 'Password reset' ? 'Password reset is unavailable in this development demo. No reset email will be sent. Use the demo credentials shown on the sign-in page.' : 'The approved legal document has not been provided. This development demo does not create an account or record legal consent.'}</p>
+      <p>{information === 'Password reset' ? 'Password reset is not available yet. Contact your workspace administrator for assistance.' : 'The approved legal document has not been provided. Contact your workspace administrator for the current policy.'}</p>
       <button type="button" className="auth-submit" autoFocus onClick={() => { setInformation(null); form.current?.querySelector<HTMLInputElement>('input')?.focus() }} onKeyDown={(event) => { if (event.key === 'Tab') event.preventDefault() }}>Close</button>
     </section></div>}
   </main>
