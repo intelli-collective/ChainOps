@@ -8,6 +8,11 @@ import { AuthController } from './auth/auth.controller.js';
 import { AuthService } from './auth/auth.service.js';
 import { OAuthService } from './auth/oauth.service.js';
 import { OAuthController } from './auth/oauth.controller.js';
+import { ProjectAccessService } from './security-governance/project-access.service.js';
+import { SecurityPolicyController } from './security-governance/security-policy.controller.js';
+import { SecurityPolicyService } from './security-governance/security-policy.service.js';
+import { ApprovalRequestController } from './security-governance/approval-request.controller.js';
+import { ApprovalRequestService } from './security-governance/approval-request.service.js';
 import { ContractsController } from './contracts/contracts.controller.js';
 import { ContractsService } from './contracts/contracts.service.js';
 import { ContractsGuard } from './contracts/contracts.guard.js';
@@ -25,7 +30,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'api',
     }),
   ],
-  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController],
-  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard],
+  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController],
+  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService],
 })
 export class AppModule {}

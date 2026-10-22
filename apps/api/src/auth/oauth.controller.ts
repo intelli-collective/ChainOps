@@ -27,7 +27,8 @@ export class OAuthController {
     try {
       const tokens=await this.oauth.callback(providerName(value),query.state,query.code,(req.cookies as Record<string,string> | undefined)?.chainops_oauth);
       const profile=await this.auth.current(tokens.access);
-      res.cookie('chainops_access',tokens.access,{ ...this.options(),maxAge:600000 });
+      res.clearCookie('chainops_access',this.options());
+      res.cookie('chainops_access',tokens.access,{ ...this.options(),path:'/',maxAge:600000 });
       res.cookie('chainops_refresh',tokens.refresh,{ ...this.options(),maxAge:30*86400000 });
       res.redirect(`${authConfig().origin}${profile.nextPath}`);
     } catch { res.redirect(`${authConfig().origin}/login?error=provider_failed`); }
