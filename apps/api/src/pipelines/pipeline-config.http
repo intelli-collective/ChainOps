@@ -1,0 +1,40 @@
+# M1 pipeline configuration demo. See README.md in this folder for getting an access token.
+# Works with the VS Code REST Client / JetBrains HTTP client; Postman can import it.
+
+@baseUrl = http://localhost:3000
+# chainops_access cookie value from POST /auth/login (valid 10 minutes)
+@token = paste-access-token-here
+# A real project ID: select p.id, p.name from projects p;
+@projectId = 05d2496e-5fa4-4d7a-9606-7dd98d154e4b
+
+### Create (201; 409 if one already exists)
+POST {{baseUrl}}/projects/{{projectId}}/pipeline
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"name":"Smart Contract CI","repository":"intelli-collective/vault-contracts","branch":"main","framework":"hardhat","stages":["compile","test","security"]}
+
+### Read (200; 404 if not created yet)
+GET {{baseUrl}}/projects/{{projectId}}/pipeline
+Authorization: Bearer {{token}}
+
+### Update only the given fields (200)
+PATCH {{baseUrl}}/projects/{{projectId}}/pipeline
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"branch":"develop","stages":["checkout","compile","test","slither"]}
+
+### Read again (200, shows the update)
+GET {{baseUrl}}/projects/{{projectId}}/pipeline
+Authorization: Bearer {{token}}
+
+### Invalid stage (400)
+PATCH {{baseUrl}}/projects/{{projectId}}/pipeline
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"stages":["deploy-mainnet"]}
+
+### Missing token (401)
+GET {{baseUrl}}/projects/{{projectId}}/pipeline
