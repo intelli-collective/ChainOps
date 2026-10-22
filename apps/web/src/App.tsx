@@ -1,5 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { AuthPage } from './features/auth/AuthPage'
+import { ProtectedRoutes, VerifyEmail } from './features/auth/Session'
+import { RecoveryPage } from './features/auth/RecoveryPage'
 import { DeploymentPage } from './features/deployments'
 import { ContractRegistryPage } from './features/contracts'
 import { LandingPage } from './features/landing/LandingPage'
@@ -31,9 +33,13 @@ export default function App() {
     <Route path="/" element={<LandingPage />} />
     <Route path="/login" element={<AuthPage mode="login" />} />
     <Route path="/register" element={<AuthPage mode="register" />} />
-    {/* Future server-backed authentication belongs at this boundary. No simulated security guard. */}
+    <Route path="/verify-email" element={<VerifyEmail />} />
+    <Route path="/forgot-password" element={<RecoveryPage mode="forgot" />} />
+    <Route path="/reset-password" element={<RecoveryPage mode="reset" />} />
+    <Route element={<ProtectedRoutes />}>
     <Route element={<ApplicationLayout />}>
       <Route path="/dashboard" element={<DashboardPlaceholder />} />
+      <Route path="/onboarding" element={<DashboardPlaceholder />} />
       <Route path="/projects" element={<RoutePlaceholder title="Projects" />} />
       <Route path="/projects/:projectId/pipelines" element={<ProjectPage page="pipelines" />} />
       <Route path="/projects/:projectId/pipelines/:runId" element={<RoutePlaceholder title="Pipeline run details" back="pipelines" />} />
@@ -49,6 +55,7 @@ export default function App() {
       <Route path="/settings" element={<RoutePlaceholder title="Settings" />} />
       <Route path="/deployments" element={<Navigate to="/projects/chainvault/deployments/new" replace />} />
       <Route path="*" element={<RoutePlaceholder title="Page not found" />} />
+    </Route>
     </Route>
   </Routes></BrowserRouter>
 }

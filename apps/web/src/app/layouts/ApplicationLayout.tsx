@@ -1,8 +1,12 @@
 ﻿import { useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useParams } from 'react-router-dom'
 import './application-layout.css'
+import { logout } from '../../features/auth/api'
+import { useNavigate } from 'react-router-dom'
 
 export function ApplicationLayout() {
+  const navigate = useNavigate()
+  const [logoutError, setLogoutError] = useState('')
   const { projectId = 'chainvault' } = useParams()
   const project = `/projects/${encodeURIComponent(projectId)}`
   const location = useLocation()
@@ -26,7 +30,8 @@ export function ApplicationLayout() {
       </Link>
       <p className="shell-workspace">Workspace<br />ChainOps Team</p>
       <nav aria-label="Main navigation">{links.map(link => <NavLink key={link.label} to={link.to} end={link.end} onClick={() => setOpenPath(null)}>{link.label}</NavLink>)}</nav>
-      <Link className="shell-logout" to="/login">Log out</Link>
+      <button className="shell-logout" onClick={async () => { try { await logout(); navigate('/login', { replace: true, state: { loggedOut: true } }) } catch { setLogoutError('Unable to log out. Please try again.') } }}>Log out</button>
+      {logoutError && <p role="alert">{logoutError}</p>}
     </aside>
     {open && <button className="shell-backdrop" aria-label="Close navigation" onClick={closeMenu} />}
     <div className="shell-body">

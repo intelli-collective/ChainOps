@@ -19,4 +19,19 @@ export class DatabaseService implements OnModuleDestroy {
   async onModuleDestroy() {
     await this.pool?.end();
   }
+
+  async transaction<T>(work: (client: pg.PoolClient) => Promise<T>): Promise<T> {
+    // Initialize the same pool used by query(), never a second connection pool.
+    await this.query('select 1');
+    const client = await this.pool!.connect();
+    try {
+      await client.query('begin');
+      const result = await work(client);
+      await client.query('commit');
+      return result;
+    } catch (error) {
+      await client.query('rollback');
+      throw error;
+    } finally { client.release(); }
+  }
 }
