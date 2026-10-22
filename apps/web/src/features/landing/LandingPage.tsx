@@ -22,6 +22,7 @@ export function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const [information, setInformation] = useState<Information | null>(null)
+  const [bannerPaused, setBannerPaused] = useState(false)
   const menuToggle = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -73,8 +74,17 @@ export function LandingPage() {
         </div>
         <section id="integrations" className="landing-integrations" aria-labelledby="landing-integrations-title">
           <div className="landing-container">
-            <h2 className="landing-eyebrow" id="landing-integrations-title">Works with industry standards</h2>
-            <ul className="landing-partners">{integrations.map((item) => <li key={item.name}><LandingIcon name={item.icon} className={item.className} /><span>{item.name}</span></li>)}</ul>
+            <div className="landing-integrations-heading">
+              <h2 className="landing-eyebrow" id="landing-integrations-title">Works with industry standards</h2>
+              <button className="landing-banner-control" type="button" aria-controls="landing-partner-banner" aria-pressed={bannerPaused} onClick={() => setBannerPaused((paused) => !paused)}>{bannerPaused ? 'Resume banner' : 'Pause banner'}</button>
+            </div>
+            <div id="landing-partner-banner" className="landing-banner" data-paused={bannerPaused} tabIndex={0} role="region" aria-label="Industry standards banner. Focus to pause scrolling.">
+              <div className="landing-banner-track">
+                {[false, true].map((duplicate) => <ul className="landing-partners" key={String(duplicate)} aria-hidden={duplicate || undefined}>
+                  {integrations.map((item) => <li key={item.name}><LandingIcon name={item.icon} className={item.className} /><span>{item.name}</span></li>)}
+                </ul>)}
+              </div>
+            </div>
           </div>
         </section>
       </section>
