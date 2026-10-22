@@ -20,6 +20,7 @@ export function credentials(body: unknown, registration = false) {
 
 @Injectable()
 export class AuthService {
+  private dummyHash?: Promise<string>;
   constructor(@Inject(DatabaseService) private readonly db: DatabaseService) {}
 
   async rateLimit(ip: string, action: string) {
@@ -89,8 +90,10 @@ export class AuthService {
     const { rows } = await this.db.query<User & { password_hash: string }>('select u.*,p.password_hash from users u join password_credentials p on p.user_id=u.id where u.email=$1', [input.email]);
     const user = rows[0];
     // Perform equivalent Argon2 work for unknown accounts to reduce timing disclosure.
-    const hash = user?.password_hash ?? await argon2.hash(opaque(), { type: argon2.argon2id, memoryCost: 65536, timeCost: 3, parallelism: 1 });
-    if (!await argon2.verify(hash, input.password) || !user) throw new UnauthorizedException('Invalid email or password');
+    const hash = user?.password_hash ?? await (this.dummyHash ??= argon2.hash(opaque(), { type: argon2.argon2id, memoryCost: 65536, timeCost: 3, parallelism: 1 }));
+    let valid = false;
+    try { valid = await argon2.verify(hash, input.password); } catch { /* Invalid legacy/seed credentials fail safely. */ }
+    if (!valid || !user) throw new UnauthorizedException('Invalid email or password');
     if (!user.email_verified_at) throw new ForbiddenException('Verify your email before signing in');
     return this.createSession(user.id);
   }
