@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ClipboardCheck, GitFork, Network, Waypoints } from 'lucide-react'
 import { ChainOpsLogo, LandingIcon } from './LandingIcon'
 import { benefits, capabilities, integrations, workflowSteps } from './content'
 import './landing.css'
@@ -12,6 +13,7 @@ const navigation = [
   { id: 'integrations', label: 'Integrations' },
   { id: 'about', label: 'About' },
 ]
+const headerNavigation = navigation.filter((item) => item.id !== 'integrations')
 
 interface Information {
   title: string
@@ -22,14 +24,13 @@ export function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const [information, setInformation] = useState<Information | null>(null)
-  const [bannerPaused, setBannerPaused] = useState(false)
   const menuToggle = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) if (entry.isIntersecting) setActiveSection(entry.target.id)
     }, { rootMargin: '-15% 0px -60% 0px', threshold: 0 })
-    for (const item of navigation) {
+    for (const item of headerNavigation) {
       const section = document.getElementById(item.id)
       if (section) observer.observe(section)
     }
@@ -48,7 +49,7 @@ export function LandingPage() {
         <a href="#home" aria-label="ChainOps home" onClick={() => selectSection('home')}><ChainOpsLogo /></a>
         <button ref={menuToggle} className="landing-menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="landing-navigation" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} onClick={() => setMenuOpen((open) => !open)}><LandingIcon name={menuOpen ? 'close' : 'menu'} /></button>
         <nav id="landing-navigation" className={`landing-navigation ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation" onKeyDown={(event) => { if (event.key === 'Escape') { setMenuOpen(false); menuToggle.current?.focus() } }}>
-          {navigation.map((item) => <a key={item.id} href={`#${item.id}`} className={activeSection === item.id ? 'is-active' : ''} aria-current={activeSection === item.id ? 'location' : undefined} onClick={() => selectSection(item.id)}>{item.label}</a>)}
+          {headerNavigation.map((item) => <a key={item.id} href={`#${item.id}`} className={activeSection === item.id ? 'is-active' : ''} aria-current={activeSection === item.id ? 'location' : undefined} onClick={() => selectSection(item.id)}>{item.label}</a>)}
           <Link className="landing-mobile-cta" to="/register">Get Started <LandingIcon name="arrow" /></Link>
         </nav>
         <Link className="landing-button landing-button-primary landing-header-cta" to="/register">Get Started <LandingIcon name="arrow" /></Link>
@@ -61,27 +62,26 @@ export function LandingPage() {
           <div className="landing-hero-copy">
             <p className="landing-eyebrow">Smart contract operations</p>
             <h1 id="landing-hero-title">Build. Validate.<br /><span>Deploy. Monitor.</span></h1>
-            <p className="landing-hero-description">ChainOps is a developer-focused platform that connects your GitHub development with automated validation, governed deployment and real-time monitoring for smart contracts.</p>
+            <p className="landing-hero-description">Validate, govern, and deploy smart contracts from GitHub. Monitor them live.</p>
             <div className="landing-button-row"><Link className="landing-button landing-button-primary" to="/register">Get Started <LandingIcon name="arrow" /></Link><a className="landing-button landing-button-outline" href="#workflow" onClick={() => selectSection('workflow')}>Learn More</a></div>
           </div>
-          <div className="landing-hero-art"><img src="/hero-image.png" alt="Ethereum crystal above an illuminated teal platform, connected to floating cubes" width="1360" height="1156" fetchPriority="high" /></div>
+          <div className="landing-hero-art"><img src="/ChainOps-Ethereum-Realistic.gif" alt="Animated Ethereum crystal above a teal platform with orbiting cubes" width="640" height="608" fetchPriority="high" /></div>
           <ul className="landing-assurances" aria-label="Platform principles">
-            <li><LandingIcon name="shield" /><span>Open Source<br />Friendly</span></li>
-            <li><LandingIcon name="layers" /><span>EVM Compatible<br />Networks</span></li>
-            <li><LandingIcon name="lock" /><span>Governed<br />Deployments</span></li>
-            <li><LandingIcon name="link" /><span>End-to-End<br />Traceability</span></li>
+            <li><GitFork className="landing-assurance-icon" aria-hidden="true" /><span>Open Source<br />Friendly</span></li>
+            <li><Network className="landing-assurance-icon" aria-hidden="true" /><span>EVM Compatible<br />Networks</span></li>
+            <li><ClipboardCheck className="landing-assurance-icon" aria-hidden="true" /><span>Governed<br />Deployments</span></li>
+            <li><Waypoints className="landing-assurance-icon" aria-hidden="true" /><span>End-to-End<br />Traceability</span></li>
           </ul>
         </div>
         <section id="integrations" className="landing-integrations" aria-labelledby="landing-integrations-title">
           <div className="landing-container">
             <div className="landing-integrations-heading">
               <h2 className="landing-eyebrow" id="landing-integrations-title">Works with industry standards</h2>
-              <button className="landing-banner-control" type="button" aria-controls="landing-partner-banner" aria-pressed={bannerPaused} onClick={() => setBannerPaused((paused) => !paused)}>{bannerPaused ? 'Resume banner' : 'Pause banner'}</button>
             </div>
-            <div id="landing-partner-banner" className="landing-banner" data-paused={bannerPaused} tabIndex={0} role="region" aria-label="Industry standards banner. Focus to pause scrolling.">
+            <div id="landing-partner-banner" className="landing-banner" role="region" aria-label="Industry standards banner">
               <div className="landing-banner-track">
                 {[false, true].map((duplicate) => <ul className="landing-partners" key={String(duplicate)} aria-hidden={duplicate || undefined}>
-                  {integrations.map((item) => <li key={item.name}><LandingIcon name={item.icon} className={item.className} /><span>{item.name}</span></li>)}
+                  {integrations.map((item) => <li key={item.name}><span className="landing-partner-mark">{item.logo ? <img src={item.logo} alt="" width="48" height="36" /> : <LandingIcon name={item.icon!} />}</span><span>{item.name}</span></li>)}
                 </ul>)}
               </div>
             </div>
@@ -111,7 +111,7 @@ export function LandingPage() {
 
       <section id="features" className="landing-capabilities landing-section-border" aria-labelledby="landing-features-title">
         <div className="landing-container">
-          <div className="landing-section-heading"><div><p className="landing-eyebrow">Core capabilities</p><h2 id="landing-features-title">Everything you need<br />for smart contract operations.</h2></div><p className="landing-body-copy">ChainOps brings together development, security, deployment and monitoring into one cohesive platform.</p></div>
+          <div className="landing-section-heading"><div><p className="landing-eyebrow">Core capabilities</p><h2 id="landing-features-title">Everything you need<br />for smart contract operations.</h2></div></div>
           <div className="landing-capability-grid">{capabilities.map((capability) => <article className="landing-capability-card" key={capability.title}>
             <LandingIcon name={capability.icon} />
             <div><h3>{capability.title}</h3><p>{capability.description}</p><button className="landing-text-button" type="button" aria-label={`Learn more about ${capability.title}`} onClick={() => setInformation({ title: capability.title, paragraphs: [capability.detail] })}>Learn more <span aria-hidden="true">→</span></button></div>
@@ -121,7 +121,7 @@ export function LandingPage() {
 
       <section id="about" className="landing-about" aria-labelledby="landing-about-title">
         <div className="landing-container">
-          <div className="landing-section-heading"><div><p className="landing-eyebrow">Why ChainOps</p><h2 id="landing-about-title">Designed for developer teams.<br />Built for real-world operations.</h2></div><p className="landing-body-copy">ChainOps is not a replacement for your existing tools. It integrates with the best tools in the ecosystem and adds the governance, traceability and operational context your team needs.</p></div>
+          <div className="landing-section-heading"><div><p className="landing-eyebrow">Why ChainOps</p><h2 id="landing-about-title">Designed for developer teams.<br />Built for real-world operations.</h2></div></div>
           <div className="landing-benefits">{benefits.map((benefit) => <article key={benefit.title}><LandingIcon name={benefit.icon} /><div><h3>{benefit.title}</h3><p>{benefit.description}</p></div></article>)}</div>
           <div className="landing-cta-panel"><div><p className="landing-eyebrow">Ready to streamline your smart contract operations?</p><h2>Start building with ChainOps.</h2></div><div className="landing-button-row"><Link className="landing-button landing-button-primary" to="/register">Get Started <LandingIcon name="arrow" /></Link><a className="landing-button landing-button-outline" href={repository} target="_blank" rel="noreferrer">View on GitHub <LandingIcon name="github" /></a></div></div>
         </div>
