@@ -43,4 +43,18 @@ export const apiAuthService: AuthService = {
   login: request => authRequest('login', request),
   register: request => authRequest('register', request),
 }
-export async function logout() { await authRequest('logout', {}); csrf = undefined }
+export function subscribeToLogout(callback: () => void) {
+  window.addEventListener('chainops:logout', callback)
+  const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('chainops-auth') : undefined
+  if (channel) channel.onmessage = event => { if (event.data === 'logout') { csrf = undefined; callback() } }
+  return () => { window.removeEventListener('chainops:logout', callback); channel?.close() }
+}
+export async function logout() {
+  await authRequest('logout', {})
+  csrf = undefined
+  window.dispatchEvent(new Event('chainops:logout'))
+  if (typeof BroadcastChannel !== 'undefined') {
+    const channel = new BroadcastChannel('chainops-auth')
+    channel.postMessage('logout'); channel.close()
+  }
+}

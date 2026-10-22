@@ -22,12 +22,29 @@ it('takes a user without a membership to organization onboarding', async () => {
   fireEvent.submit(screen.getByLabelText('Email address').closest('form')!)
   expect(await screen.findByText('Organization onboarding')).toBeTruthy()
 })
-it('shows verification dependency errors and retains provider links', async () => {
+it('shows verification dependency errors and disables provider flows', async () => {
   mount('login',{login:vi.fn().mockRejectedValue(new Error('Verify your email before signing in')),register:vi.fn()}); fill()
   fireEvent.submit(screen.getByLabelText('Email address').closest('form')!)
   expect((await screen.findByRole('alert')).textContent).toContain('Verify your email')
-  expect(screen.getByRole('link',{name:'Continue with Google'}).getAttribute('href')).toBe('/auth/google/start')
-  expect(screen.getByRole('link',{name:'Continue with GitHub'}).getAttribute('href')).toBe('/auth/github/start')
+  expect((screen.getByRole('button',{name:'Continue with Google — Coming soon'}) as HTMLButtonElement).disabled).toBe(true)
+  expect((screen.getByRole('button',{name:'Continue with GitHub — Coming soon'}) as HTMLButtonElement).disabled).toBe(true)
+})
+it.each(['pageshow','chainops:logout'])('clears credentials on %s', event => {
+  mount('login',{login:vi.fn(),register:vi.fn()}); fill()
+  fireEvent(window, new Event(event))
+  expect((screen.getByLabelText('Email address') as HTMLInputElement).value).toBe('')
+  expect((screen.getByLabelText('Password') as HTMLInputElement).value).toBe('')
+})
+it('rejects seven characters and accepts an eight-character registration password', async () => {
+  const register=vi.fn().mockResolvedValue({message:'Check your email'})
+  mount('register',{login:vi.fn(),register}); fill()
+  fireEvent.change(screen.getByLabelText('Full name'),{target:{value:'Member'}}); fireEvent.click(screen.getByRole('checkbox'))
+  fireEvent.change(screen.getByLabelText('Password'),{target:{value:'1234567'}})
+  fireEvent.submit(screen.getByLabelText('Email address').closest('form')!)
+  expect(screen.getByText('Password must be at least 8 characters.')).toBeTruthy(); expect(register).not.toHaveBeenCalled()
+  fireEvent.change(screen.getByLabelText('Password'),{target:{value:'12345678'}})
+  fireEvent.submit(screen.getByLabelText('Email address').closest('form')!)
+  expect(await screen.findByText('Check your email')).toBeTruthy()
 })
 it('keeps new registrations unauthenticated pending email verification', async () => {
   const register=vi.fn().mockResolvedValue({verificationRequired:true,message:'Check your email'})

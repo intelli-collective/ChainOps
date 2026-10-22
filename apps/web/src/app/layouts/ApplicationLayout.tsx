@@ -30,7 +30,7 @@ export function ApplicationLayout() {
       </Link>
       <p className="shell-workspace">Workspace<br />ChainOps Team</p>
       <nav aria-label="Main navigation">{links.map(link => <NavLink key={link.label} to={link.to} end={link.end} onClick={() => setOpenPath(null)}>{link.label}</NavLink>)}</nav>
-      <button className="shell-logout" onClick={async () => { try { await logout(); navigate('/login', { replace: true }) } catch { setLogoutError('Unable to log out. Please try again.') } }}>Log out</button>
+      <button className="shell-logout" onClick={async () => { try { await logout(); navigate('/login', { replace: true, state: { loggedOut: true } }) } catch { setLogoutError('Unable to log out. Please try again.') } }}>Log out</button>
       {logoutError && <p role="alert">{logoutError}</p>}
     </aside>
     {open && <button className="shell-backdrop" aria-label="Close navigation" onClick={closeMenu} />}

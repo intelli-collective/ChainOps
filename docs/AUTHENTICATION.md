@@ -30,7 +30,7 @@ The frontend shares an in-flight refresh within a tab. Browsers supporting Web L
 
 All state-changing endpoints require an exact Origin match and a double-submit CSRF token obtained from `/auth/csrf`. The CSRF cookie is HttpOnly; its value is returned by the non-cacheable bootstrap endpoint and held only in memory. CORS allows only the configured frontend origin with credentials. Rate limits allow 20 attempts per action/IP per 15 minutes and store hashed IP keys in PostgreSQL. When deploying behind a proxy, configure trusted proxy behavior only for the actual proxy topology; do not trust arbitrary forwarded IP headers. Apply upstream request/concurrency limits as appropriate for password hashing capacity.
 
-Operations should periodically remove expired OAuth attempts, verification records and rate-limit rows, and expired sessions (cascading to their refresh hashes). Never remove consumed refresh hashes belonging to unexpired sessions. No scheduler or unrelated infrastructure has been introduced.
+Operations should periodically remove expired OAuth attempts, verification records, password-reset records and rate-limit rows, and expired sessions (cascading to their refresh hashes). Never remove consumed refresh hashes belonging to unexpired sessions. No scheduler or unrelated infrastructure has been introduced.
 
 ## API
 
@@ -49,6 +49,18 @@ Operations should periodically remove expired OAuth attempts, verification recor
 | GET | `/auth/google/callback`, `/auth/github/callback` | Validate callback and establish session |
 
 Local registration returns a verification notice. Verification links put the token in a fragment, which the existing frontend origin handles without including it in server access logs. Confirmation requires an explicit button and POST. After verification, first sign-in sends users without memberships to `/onboarding` (the existing setup placeholder). Returning members go to the existing `/projects` overview placeholder. Neither path creates organizations. Organization/project CRUD and authorization of future server-backed module endpoints remain separate work; a frontend route guard is not a substitute for backend authorization. Unrelated feature modules remain mock-driven.
+
+## Password recovery and auth UI update
+
+Migration `003_password_resets.sql` adds a dedicated hashed-token table with user/expiry indexes; no existing table or data is reset. Run `npm run db:migrate -w apps/api` against the intended development database before using the new endpoints. No extra runtime dependencies or environment variables are required: reset delivery reuses `AUTH_SMTP_URL`, `AUTH_EMAIL_FROM` and `AUTH_WEB_ORIGIN`, including Mailpit locally.
+
+`POST /auth/forgot-password` accepts `{email}` and returns the same eligibility notice for known, unknown, unverified and provider-only accounts. Only verified users with password credentials receive a reset email. Missing SMTP configuration returns 503 for all addresses. SMTP failures retain the same generic public response; retry if delivery fails. Reset links expire in 30 minutes and use `/reset-password#token=...`. `POST /auth/reset-password` accepts `{token,password,confirmPassword}`, validates and consumes the token transactionally, stores a new Argon2id hash, invalidates all sibling reset tokens and revokes all user sessions. No automatic sign-in or email-verification bypass occurs. Both routes enforce Origin/CSRF checks and rate limits. Session creation checks that a password hash authenticated before a concurrent reset is still current.
+
+Password minimum: **8 characters**, maximum 128, for registration, login and reset. All auth pages now share the user's ChainOps logo/artwork, jade/teal palette, split layout and accessible input/provider styling. The user's auth-specific reference authorizes subtle glow/abstract background effects; the attached general flat-color document supplies color values, not instructions to modify unrelated screens. The earlier Ethereum artwork is no longer rendered. **Google/GitHub buttons are intentionally disabled as Coming soon**; the existing provider backend is preserved, but no UI action starts OAuth.
+
+Login state starts empty on route entry and clears on browser `pageshow`, including restoration after logout. Password values are cleared on submission success/failure, and logout revokes the server session, removes cookies and notifies protected routes in this and other tabs. Protected routes recheck when the page is restored or becomes visible. No credentials are written to localStorage/sessionStorage or persistent app state. `autocomplete=off` is advisory: saved browser/password-manager entries can still be offered independently and must be removed in the browser if unwanted.
+
+For the opt-in real Mailpit integration check, set `AUTH_TEST_MAILPIT_ORIGIN=http://localhost:8025`, `AUTH_TEST_SMTP_URL` to the local SMTP URL and `AUTH_TEST_DATABASE_URL` to a direct test database URL, then run `npm run test:e2e -w apps/api`. It uses a unique test account/schema, verifies actual registration/resend/reset email links and deletes only its own messages after the test. Without those variables the live-delivery test is skipped. Review the manual checklist in [AUTHENTICATION_UPDATES.md](AUTHENTICATION_UPDATES.md).
 
 ## Checks
 
