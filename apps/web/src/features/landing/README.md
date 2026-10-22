@@ -6,7 +6,8 @@ and the contract registry preview.
 
 ## Assets
 
-- `/hero-image.png`: supplied Ethereum hero illustration.
+- `/ChainOps-Ethereum-Realistic.gif`: animated Ethereum hero illustration used on the page.
+- `/hero-image.png`: previous static hero illustration, retained as an asset.
 - `/logo-1.png`: supplied compact mark, paired with a text wordmark in the header.
 - `/logo-2.png`: supplied wide wordmark in the footer. A clipped CSS overlay
   lightens its dark lettering while preserving the green artwork on the black
