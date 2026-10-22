@@ -26,7 +26,7 @@ export function createMockSecurityService(scenario: MockScenario = 'populated'):
     if (!import.meta.env.DEV) throw new Error('Mock security data is only available in development. Connect the security API.')
   }
 
-  return {
+  const service: SecurityService = {
     source: 'mock',
     async listScans(projectId, signal) {
       assertDevelopment()
@@ -37,6 +37,14 @@ export function createMockSecurityService(scenario: MockScenario = 'populated'):
       if (scenario === 'running') return [{ ...structuredClone(scans[0]), status: 'running', findings: [], policy: null }]
       if (scenario === 'clean') return [{ ...structuredClone(scans[0]), findings: [], policy: { decision: 'passed', reason: 'No findings in this mock scan.' } }]
       return structuredClone(scans)
+    },
+    async getFindingDetail(projectId, scanId, findingId, signal) {
+      const projectScans = await service.listScans(projectId, signal)
+      const scan = projectScans.find(item => item.id === scanId)
+      if (!scan) return { status: 'scan-not-found' }
+      const finding = findingId ? scan.findings.find(item => item.id === findingId) : scan.findings[0]
+      if (!finding) return { status: 'finding-not-found', scan }
+      return { status: 'found', scan, finding }
     },
     async runAnalysis(projectId, signal) {
       assertDevelopment()
@@ -54,4 +62,5 @@ export function createMockSecurityService(scenario: MockScenario = 'populated'):
       return structuredClone(scan)
     },
   }
+  return service
 }

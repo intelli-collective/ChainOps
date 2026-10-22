@@ -8,6 +8,7 @@
   --pr-text: #e6eceb;
   --pr-text-muted: #9aa5a4;
   --pr-heading: #0b1213;
+  --pr-canvas: #fff;
   --pr-accent: #0f7b6c;
   --pr-accent-hover: #0d6a5d;
   --pr-link: #3cc6b0;
@@ -22,7 +23,11 @@
   flex-direction: column;
   gap: 24px;
   width: 100%;
+  min-height: 100svh;
   padding: 40px 40px 48px;
+  /* The Figma content area is light even though the global app background is dark. */
+  background: var(--pr-canvas);
+  color-scheme: light;
   text-align: left;
   font-family: Inter, system-ui, 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
@@ -389,6 +394,197 @@
   font-size: 14px;
 }
 
+/* Run details */
+.pr-subtitle__meta {
+  color: var(--pr-text-muted);
+}
+
+.pr-dark-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 174px;
+  min-height: 46px;
+  padding: 0 24px;
+  border: 1px solid var(--pr-border);
+  border-radius: var(--pr-radius);
+  background: var(--pr-surface);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pr-dark-button:hover:not(:disabled) {
+  background: #162122;
+}
+
+.pr-dark-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pr-secondary-button {
+  text-decoration: none;
+}
+
+.pr-provenance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 0;
+  margin: 0;
+  padding: 18px 24px;
+  list-style: none;
+  border: 1px solid var(--pr-border);
+  border-radius: var(--pr-radius);
+  background: var(--pr-surface);
+  color: var(--pr-link);
+}
+
+.pr-provenance__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pr-provenance__arrow,
+.pr-stepper__arrow {
+  display: inline-flex;
+  margin: 0 22px;
+  color: var(--pr-link);
+}
+
+.pr-stage-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-content: start;
+  min-height: 420px;
+  padding: 32px 34px 40px;
+  border: 1px solid var(--pr-border);
+  border-radius: var(--pr-radius);
+  background: var(--pr-surface);
+}
+
+.pr-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pr-stepper__item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.pr-stepper__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 2px 6px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--pr-link);
+  font: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pr-stepper__tab[aria-selected='true'] {
+  border-bottom-color: currentColor;
+}
+
+.pr-stepper__tab:hover {
+  filter: brightness(1.15);
+}
+
+.pr-stage--failed {
+  color: var(--pr-danger);
+}
+
+.pr-stage--skipped {
+  color: var(--pr-text-muted);
+}
+
+.pr-stage-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  justify-items: start;
+}
+
+.pr-stage-panel__title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  color: #fff;
+}
+
+.pr-stage-panel__meta,
+.pr-stage-panel__empty {
+  margin: 0;
+  font-size: 14px;
+}
+
+.pr-log {
+  width: 100%;
+  margin: 0;
+  overflow-x: auto;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--pr-text-muted);
+}
+
+.pr-log__toggle {
+  margin-top: -8px;
+  padding-left: 0;
+}
+
+.pr-stage-error {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(240, 84, 92, 0.4);
+  border-left: 3px solid var(--pr-danger);
+  border-radius: var(--pr-radius);
+  background: rgba(240, 84, 92, 0.06);
+}
+
+.pr-stage-error__message {
+  margin: 0;
+  font-weight: 600;
+  color: var(--pr-danger);
+}
+
+.pr-stage-error__detail {
+  margin: 8px 0 0;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--pr-text);
+}
+
+.pr-skeleton--wide {
+  width: 40%;
+}
+
+.pr-skeleton--title {
+  width: 30%;
+  height: 28px;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .pr-page {
@@ -413,8 +609,22 @@
     font-size: 28px;
   }
 
-  .pr-header .pr-primary-button {
+  .pr-header .pr-primary-button,
+  .pr-header .pr-dark-button {
     width: 100%;
+  }
+
+  .pr-stage-card {
+    padding: 24px 20px 28px;
+  }
+
+  .pr-stage-panel__title {
+    font-size: 26px;
+  }
+
+  .pr-provenance__arrow,
+  .pr-stepper__arrow {
+    margin: 0 10px;
   }
 
   .pr-filters {
