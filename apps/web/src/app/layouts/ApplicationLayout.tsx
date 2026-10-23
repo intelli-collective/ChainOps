@@ -17,7 +17,7 @@ export function ApplicationLayout() {
     { label: 'Overview', to: '/dashboard' }, { label: 'Projects', to: '/projects', end: true },
     { label: 'Pipelines', to: `${project}/pipelines` }, { label: 'Security', to: `${project}/security` },
     { label: 'Deployments', to: `${project}/deployments` }, { label: 'Contracts', to: `${project}/contracts` },
-    { label: 'Monitoring', to: `${project}/monitoring` }, { label: 'Alerts', to: '/alerts' },
+    { label: 'Monitoring', to: `${project}/monitoring` }, { label: 'Alerts', to: `${project}/monitoring/alerts` },
     { label: 'Audit', to: '/audit' }, { label: 'Settings', to: '/settings' },
   ]
   function closeMenu() { setOpenPath(null); menu.current?.focus() }

@@ -40,7 +40,7 @@ describe.skipIf(!process.env.MONITORING_TEST_DATABASE_URL)(
       condition: { field: 'amount', operator: 'gt', value: '100' },
       enabled: true,
     };
-    const route = (resource: string, project = projectId) =>
+    const route = (resource: string, project: string = projectId) =>
       `/projects/${project}/${resource}`;
 
     beforeAll(async () => {

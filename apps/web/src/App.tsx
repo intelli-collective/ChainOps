@@ -6,7 +6,7 @@ import { DeploymentPage } from './features/deployments'
 import { ContractRegistryPage } from './features/contracts'
 import { LandingPage } from './features/landing/LandingPage'
 import { PipelineRunsPage } from './features/pipelines'
-import { MonitoringDashboard, ContractEventsExplorer } from './features/monitoring'
+import { MonitoringWorkspace } from './features/monitoring'
 import { SecurityDashboard } from './features/security'
 import { createMockSecurityService } from './features/security/services/mockSecurityService'
 import { DashboardPlaceholder } from './app/DashboardPlaceholder'
@@ -15,15 +15,14 @@ import { RoutePlaceholder } from './app/RoutePlaceholder'
 import './App.css'
 
 const securityService = createMockSecurityService()
-function ProjectPage({ page }: { page: 'pipelines' | 'deployments' | 'contracts' | 'monitoring' | 'events' | 'security' }) {
-  const { projectId = 'chainvault', contractId } = useParams()
+function ProjectPage({ page }: { page: 'pipelines' | 'deployments' | 'contracts' | 'monitoring' | 'security' }) {
+  const { projectId = 'chainvault' } = useParams()
   const navigate = useNavigate()
   switch (page) {
     case 'pipelines': return <PipelineRunsPage key={projectId} projectId={projectId} />
     case 'deployments': return <DeploymentPage key={projectId} projectId={projectId} historyHref={`/projects/${encodeURIComponent(projectId)}/deployments`} />
     case 'contracts': return <ContractRegistryPage key={projectId} projectId={projectId} />
-    case 'monitoring': return <MonitoringDashboard key={projectId} projectId={projectId} onOpenEventExplorer={navigate} />
-    case 'events': return <ContractEventsExplorer projectId={projectId} contractId={contractId} onBackToMonitoring={() => navigate(`/projects/${encodeURIComponent(projectId)}/monitoring`)} />
+    case 'monitoring': return <MonitoringWorkspace key={projectId} />
     case 'security': return <SecurityDashboard projectId={projectId} service={securityService} onNavigate={navigate} />
   }
 }
@@ -46,11 +45,10 @@ export default function App() {
       <Route path="/projects/:projectId/deployments/new" element={<ProjectPage page="deployments" />} />
       <Route path="/projects/:projectId/deployments" element={<RoutePlaceholder title="Deployments" />} />
       <Route path="/projects/:projectId/contracts" element={<ProjectPage page="contracts" />} />
-      <Route path="/projects/:projectId/monitoring" element={<ProjectPage page="monitoring" />} />
-      <Route path="/projects/:projectId/monitoring/contracts/:contractId/events" element={<ProjectPage page="events" />} />
+      <Route path="/projects/:projectId/monitoring/*" element={<ProjectPage page="monitoring" />} />
       <Route path="/projects/:projectId/security" element={<ProjectPage page="security" />} />
       <Route path="/projects/:projectId/security/scans/:scanId" element={<RoutePlaceholder title="Security scan details" back="security" />} />
-      <Route path="/alerts" element={<RoutePlaceholder title="Alerts" />} />
+      <Route path="/alerts" element={<MonitoringWorkspace entry="alerts" />} />
       <Route path="/audit" element={<RoutePlaceholder title="Audit" />} />
       <Route path="/settings" element={<RoutePlaceholder title="Settings" />} />
       <Route path="/deployments" element={<Navigate to="/projects/chainvault/deployments/new" replace />} />

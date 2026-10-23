@@ -1,5 +1,7 @@
 # M3 monitoring configuration and alert rules
 
+Runtime extension: [M3 monitoring, events and alerts](../../../../docs/M3_MONITORING_RUNTIME.md) documents migration 005, API-backed browser screens, the worker, and M2/RPC prerequisites. M3 now also accepts the merged M5 root-path access cookie with CSRF on writes. Bearer authorization described below remains supported for Postman; earlier cookie/CORS limitations below are historical interim notes.
+
 This slice stores intended monitoring targets and typed alert rule configuration in PostgreSQL/Neon. It does not ingest blockchain events, evaluate rules, run polling workers, send alerts, or change the existing mock monitoring frontend.
 
 ## Design and files
