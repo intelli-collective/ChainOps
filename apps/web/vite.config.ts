@@ -1,3 +1,4 @@
+
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
@@ -7,9 +8,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': process.env.API_URL ?? 'http://localhost:3000',
-      // Module APIs (e.g. M1 pipelines) are called as /api/... and forwarded without the prefix,
-      // because paths such as /projects are also frontend routes.
-      '/api': { target: process.env.API_URL ?? 'http://localhost:3000', rewrite: (path) => path.replace(/^\/api/, '') },
+
+      // Forward /api/... to the backend without the /api prefix.
+      // This avoids conflicts with frontend routes such as /projects.
+      '/api': {
+        target: process.env.API_URL ?? 'http://localhost:3000',
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
     },
   },
 })

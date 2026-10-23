@@ -1,0 +1,294 @@
+.application-shell--member2 {
+  grid-template-columns: 256px minmax(0, 1fr);
+  border-color: #1b2925;
+  border-radius: 8px;
+  font:
+    13px/1.4 'ChainOps Inter',
+    Inter,
+    sans-serif;
+  color: #edf3f1;
+}
+.application-shell--member2 .shell-sidebar {
+  padding: 24px 12px 20px;
+  background: #0a1010;
+  border-right: 1px solid #293a34;
+  height: 100svh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+.m2-brand {
+  position: relative;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 190px;
+  margin: auto;
+  color: #edf3f1;
+  font-size: 22px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.m2-brand img {
+  flex: none;
+}
+.m2-workspace {
+  margin: 12px 0;
+  text-align: center;
+}
+.m2-all-projects {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 0 3px 20px;
+  border: 1px solid #58726b;
+  border-radius: 8px;
+  color: #edf3f1;
+  background: #0c2620;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.application-shell--member2 .shell-sidebar .m2-navigation {
+  display: block;
+}
+.m2-navigation-group {
+  height: 42px;
+  padding: 18px 12px 0;
+  margin: 4px 0;
+  color: #879894;
+  letter-spacing: 0.9px;
+  font-size: 10px;
+}
+.application-shell--member2 .shell-sidebar nav a,
+.application-shell--member2 .shell-sidebar nav button {
+  width: 100%;
+  height: 30px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  color: #a4b3af;
+  text-decoration: none;
+  font: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  text-align: left;
+}
+.application-shell--member2 .shell-sidebar nav button:disabled {
+  cursor: not-allowed;
+}
+.application-shell--member2 .shell-sidebar nav a:hover {
+  background: #0c2620;
+}
+.application-shell--member2 .shell-sidebar nav a.active {
+  background: #034139;
+  color: #edf3f1;
+  font-weight: 600;
+}
+.application-shell--member2 .shell-sidebar nav img {
+  flex: none;
+}
+.application-shell--member2 .shell-header {
+  height: 76px;
+  padding: 20px;
+  background: #080e0e;
+  color: #a4b3af;
+  position: relative;
+  z-index: 5;
+  font-size: 13px;
+}
+.m2-toolbar-content {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  width: 100%;
+  min-width: 0;
+}
+.m2-project-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #57c7bd;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.m2-toolbar-network {
+  color: #57c7bd;
+  white-space: nowrap;
+}
+.m2-global-search {
+  flex: 1;
+  max-width: 560px;
+  position: relative;
+}
+.m2-global-search input {
+  width: 100%;
+  height: 36px;
+  background: #080e0d;
+  color: #edf3f1;
+  border: 1px solid #1b2925;
+  padding: 8px;
+  border-radius: 8px;
+  font: inherit;
+}
+.m2-global-search input::placeholder {
+  color: #a4b3af;
+}
+.m2-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.m2-bell,
+.m2-profile {
+  background: transparent;
+  border: 0;
+  color: #edf3f1;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.m2-bell {
+  width: 32px;
+  height: 32px;
+  justify-content: center;
+}
+.m2-profile {
+  gap: 8px;
+  white-space: nowrap;
+}
+.m2-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #293a34;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+.m2-toolbar-popover {
+  position: absolute;
+  right: 20px;
+  top: 64px;
+  width: 320px;
+  max-width: calc(100vw - 40px);
+  padding: 20px;
+  border: 1px solid #293a34;
+  border-radius: 8px;
+  background: #0b1010;
+  color: #edf3f1;
+  z-index: 40;
+  box-shadow: 0 12px 30px #0008;
+}
+.m2-toolbar-popover p {
+  color: #a4b3af;
+  font-size: 13px;
+}
+.m2-toolbar-popover a,
+.m2-toolbar-popover button {
+  display: block;
+  padding: 10px 0;
+  color: #57c7bd;
+  background: none;
+  border: 0;
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
+}
+.m2-search-results {
+  top: 44px;
+  left: 0;
+  width: 100%;
+}
+.m2-search-results a {
+  overflow-wrap: anywhere;
+}
+.m2-preview-banner {
+  position: fixed;
+  bottom: 0;
+  left: 256px;
+  right: 0;
+  z-index: 40;
+  padding: 6px 16px;
+  font:
+    12px/1.4 'ChainOps Inter',
+    sans-serif;
+  color: #e4b84f;
+  background: #18170d;
+  border-bottom: 1px solid #39351e;
+}
+.m2-preview-banner a {
+  color: #57c7bd;
+}
+@media (min-width: 1700px) {
+  .application-shell--member2 .shell-sidebar {
+    padding: 24px 12px 20px;
+    font-size: 13px;
+  }
+  .application-shell--member2 .shell-sidebar nav {
+    gap: 4px;
+  }
+  .application-shell--member2 .shell-header {
+    height: 76px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 1200px) {
+  .m2-toolbar-content {
+    gap: 16px;
+  }
+  .m2-profile > span:nth-child(2) {
+    display: none;
+  }
+  .m2-toolbar-network {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .application-shell--member2 {
+    display: block;
+  }
+  .application-shell--member2 .shell-header {
+    padding: 12px 16px;
+    height: 64px;
+  }
+  .application-shell--member2 .shell-sidebar.is-open {
+    top: 64px;
+    height: calc(100svh - 64px);
+  }
+  .m2-toolbar-content {
+    gap: 12px;
+  }
+  .m2-project-label {
+    display: none;
+  }
+  .m2-global-search {
+    min-width: 60px;
+  }
+  .m2-toolbar-right {
+    gap: 8px;
+  }
+  .m2-profile > img {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .m2-preview-banner {
+    left: 0;
+  }
+}
+
+.m2-avatar img {
+  border-radius: 50%;
+  object-fit: cover;
+}

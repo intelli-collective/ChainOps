@@ -1,5 +1,7 @@
 # Member 3 · Monitoring frontend
 
+The application now uses the API-backed M3 workspace in `live/`. See [runtime implementation and setup](../../../../../docs/M3_MONITORING_RUNTIME.md). The sections below describe the earlier isolated mock previews, which remain for reference and are no longer the application route's data source.
+
 Task 1's dashboard and Task 2's Contract Events Explorer are implemented as isolated features. See [Task 2 behavior and integration notes](events/README.md).
 
 Implements Member 3's first frontend sprint task using the screenshot supplied in the task conversation. An exact Figma frame URL and responsive variants were not supplied; no frame URL has been invented. The page content follows the supplied desktop reference. Mobile layouts stack the same cards.

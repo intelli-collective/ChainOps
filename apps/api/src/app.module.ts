@@ -1,3 +1,7 @@
+import { ReleaseController } from './deployments/release.controller.js';
+import { ReleaseService } from './deployments/release.service.js';
+import { ReleaseGuard } from './deployments/release.guard.js';
+import { ReleaseIntegration } from './deployments/release.integration.js';
 import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
@@ -37,6 +41,11 @@ import { ApprovalRequestService } from './security-governance/approval-request.s
 import { ContractsController } from './contracts/contracts.controller.js';
 import { ContractsService } from './contracts/contracts.service.js';
 import { ContractsGuard } from './contracts/contracts.guard.js';
+import { MonitoringProjectsController, MonitoringRuntimeController } from './monitoring/runtime.controller.js';
+import { MonitoringRuntimeService } from './monitoring/runtime.service.js';
+import { RegistryGateway } from './monitoring/registry.gateway.js';
+import { ChainGateway } from './monitoring/chain.gateway.js';
+import { MonitoringWorker } from './monitoring/monitoring.worker.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -51,7 +60,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'api',
     }),
   ],
-  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, PipelineRunsController, GitHubController, ProjectLookupController, MonitoringController, OrganizationsController, ProjectsController, InvitationsController, NotificationsController, EnvironmentsController, SearchController, AssistantController],
-  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, PipelineRunsService, PipelineWorkerService, GitHubService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard, SessionGuard, NotificationsService, InvitationsService, OrganizationsService, ProjectsService, EnvironmentsService, SearchService, AssistantService],
+ controllers: [ReleaseController, AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, PipelineRunsController, GitHubController, ProjectLookupController, PipelineConfigController, MonitoringController, MonitoringRuntimeController, MonitoringProjectsController, OrganizationsController, ProjectsController, InvitationsController, NotificationsController, EnvironmentsController, SearchController, AssistantController],
+
+providers: [ReleaseService, ReleaseGuard, ReleaseIntegration, AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, PipelineRunsService, PipelineWorkerService, GitHubService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard, SessionGuard, MonitoringRuntimeService, RegistryGateway, ChainGateway, MonitoringWorker, NotificationsService, InvitationsService, OrganizationsService, ProjectsService, EnvironmentsService, SearchService, AssistantService],
 })
 export class AppModule {}
