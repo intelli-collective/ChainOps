@@ -21,7 +21,8 @@ import { GitHubController } from './pipelines/github.controller.js';
 import { GitHubService } from './pipelines/github.service.js';
 import { ProjectLookupController } from './pipelines/project-lookup.controller.js';
 import { SessionGuard } from './auth/session.guard.js';
-import { EnvironmentsController, InvitationsController, NotificationsController, OrganizationsController, ProjectsController, SearchController } from './platform/platform.controllers.js';
+import { AssistantController, EnvironmentsController, InvitationsController, NotificationsController, OrganizationsController, ProjectsController, SearchController } from './platform/platform.controllers.js';
+import { AssistantService } from './platform/assistant.service.js';
 import { EnvironmentsService } from './platform/environments.service.js';
 import { InvitationsService } from './platform/invitations.service.js';
 import { NotificationsService } from './platform/notifications.service.js';
@@ -50,7 +51,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'api',
     }),
   ],
-  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, PipelineRunsController, GitHubController, ProjectLookupController, MonitoringController, OrganizationsController, ProjectsController, InvitationsController, NotificationsController, EnvironmentsController, SearchController],
-  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, PipelineRunsService, PipelineWorkerService, GitHubService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard, SessionGuard, NotificationsService, InvitationsService, OrganizationsService, ProjectsService, EnvironmentsService, SearchService],
+  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, PipelineRunsController, GitHubController, ProjectLookupController, MonitoringController, OrganizationsController, ProjectsController, InvitationsController, NotificationsController, EnvironmentsController, SearchController, AssistantController],
+  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, PipelineRunsService, PipelineWorkerService, GitHubService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard, SessionGuard, NotificationsService, InvitationsService, OrganizationsService, ProjectsService, EnvironmentsService, SearchService, AssistantService],
 })
 export class AppModule {}

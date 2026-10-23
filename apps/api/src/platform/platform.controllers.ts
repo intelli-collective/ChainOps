@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, ParseUUIDPipe, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { SessionGuard, type SessionRequest } from '../auth/session.guard.js';
+import { AssistantService } from './assistant.service.js';
 import { EnvironmentsService } from './environments.service.js';
 import { InvitationsService } from './invitations.service.js';
 import { SearchService } from './search.service.js';
@@ -99,4 +100,13 @@ export class SearchController {
   constructor(@Inject(SearchService) private readonly searchService: SearchService) {}
 
   @Get() search(@Req() req: SessionRequest, @Query('q') q?: string) { return this.searchService.search(req.userId, q); }
+}
+
+@Controller('projects/:projectId/assistant')
+@UseGuards(SessionGuard)
+export class AssistantController {
+  constructor(@Inject(AssistantService) private readonly assistant: AssistantService) {}
+
+  @Get() status(@Req() req: SessionRequest, @Param('projectId', uuid) id: string) { return this.assistant.status(req.userId, id); }
+  @Post() @HttpCode(200) ask(@Req() req: SessionRequest, @Param('projectId', uuid) id: string, @Body() body: unknown) { return this.assistant.ask(req.userId, id, body); }
 }

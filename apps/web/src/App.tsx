@@ -11,6 +11,7 @@ import { SecurityDashboard } from './features/security'
 import { createMockSecurityService } from './features/security/services/mockSecurityService'
 import { InvitationsPage, IntegrationsPage, OrganizationSettingsPage, OrganizationSetupPage, PeoplePage, ProjectsPage } from './features/platform/pages/OrganizationPages'
 import { EnvironmentsPage, NotificationsPage, ProjectDashboardPage, ProjectDetailsPage, ProjectSettingsPage, ReviewStepPage, TeamInfoPage, TeamStepPage, VariablesPage } from './features/platform/pages/ProjectPages'
+import { AssistantPage } from './features/platform/pages/AssistantPage'
 import { ApplicationLayout } from './app/layouts/ApplicationLayout'
 import { RoutePlaceholder } from './app/RoutePlaceholder'
 import './App.css'
@@ -71,6 +72,7 @@ export default function App() {
       <Route path="/projects/:projectId/variables" element={<VariablesPage />} />
       <Route path="/projects/:projectId/team" element={<TeamInfoPage />} />
       <Route path="/projects/:projectId/notifications" element={<NotificationsPage />} />
+      <Route path="/projects/:projectId/assistant" element={<AssistantPage />} />
       <Route path="/projects/:projectId/approvals" element={<RoutePlaceholder title="Approvals" owner="Security & Governance (M4)" />} />
       <Route path="/projects/:projectId/smart-contracts" element={<RoutePlaceholder title="Smart Contracts" owner="Release & Deployment (M2)" />} />
       <Route path="/projects/:projectId/alerts" element={<RoutePlaceholder title="Alerts" owner="Monitoring (M3)" />} />

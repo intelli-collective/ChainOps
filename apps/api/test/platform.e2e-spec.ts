@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import pg from 'pg';
+import type Anthropic from '@anthropic-ai/sdk';
 import cookieParser from 'cookie-parser';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
@@ -10,18 +11,29 @@ import request from 'supertest';
 import { DatabaseService } from '../src/database/database.service.js';
 import { AuthService } from '../src/auth/auth.service.js';
 import { SessionGuard } from '../src/auth/session.guard.js';
-import { EnvironmentsController, InvitationsController, NotificationsController, OrganizationsController, ProjectsController, SearchController } from '../src/platform/platform.controllers.js';
+import { AssistantController, EnvironmentsController, InvitationsController, NotificationsController, OrganizationsController, ProjectsController, SearchController } from '../src/platform/platform.controllers.js';
 import { EnvironmentsService } from '../src/platform/environments.service.js';
 import { InvitationsService } from '../src/platform/invitations.service.js';
 import { NotificationsService } from '../src/platform/notifications.service.js';
 import { OrganizationsService } from '../src/platform/organizations.service.js';
 import { ProjectsService } from '../src/platform/projects.service.js';
 import { SearchService } from '../src/platform/search.service.js';
+import { AssistantService } from '../src/platform/assistant.service.js';
+
+// The provider call is the only stubbed piece; context building, RBAC and redaction run for real.
+class StubAssistant extends AssistantService {
+  calls: Anthropic.Beta.MessageCreateParamsNonStreaming[] = [];
+  reply: () => Promise<unknown> = async () => ({ stop_reason: 'end_turn', content: [] });
+  protected override async createMessage(params: Anthropic.Beta.MessageCreateParamsNonStreaming) {
+    this.calls.push(params);
+    return (await this.reply()) as Anthropic.Beta.BetaMessage;
+  }
+}
 
 // Explicit opt-in only (same variable as the auth suite). Every table lives in a
 // uniquely named test schema that is dropped afterwards; no shared data is touched.
 describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('platform API (PostgreSQL integration)', () => {
-  let pool: pg.Pool, admin: pg.Client, app: INestApplication, notifications: NotificationsService;
+  let pool: pg.Pool, admin: pg.Client, app: INestApplication, notifications: NotificationsService, assistant: StubAssistant;
   const schema = `platform_test_${randomUUID().replaceAll('-', '')}`;
   const tokens: Record<string, string> = {};
   const ids: Record<string, string> = {};
@@ -32,6 +44,7 @@ describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('platform API (PostgreSQL i
     vi.stubEnv('AUTH_WEB_ORIGIN', 'http://localhost:5173'); vi.stubEnv('AUTH_JWT_SECRET', 'test-only-secret-'.repeat(4)); vi.stubEnv('AUTH_COOKIE_SECURE', 'false');
     vi.stubEnv('PLATFORM_SECRETS_KEY', Buffer.alloc(32, 7).toString('base64'));
     vi.stubEnv('AUTH_SMTP_URL', ''); vi.stubEnv('AUTH_EMAIL_FROM', '');
+    vi.stubEnv('ANTHROPIC_API_KEY', ''); vi.stubEnv('ANTHROPIC_AUTH_TOKEN', '');
     admin = new pg.Client({ connectionString: process.env.AUTH_TEST_DATABASE_URL }); await admin.connect();
     await admin.query(`create schema "${schema}"`);
     pool = new pg.Pool({ connectionString: process.env.AUTH_TEST_DATABASE_URL, options: `-c search_path=${schema}` });
@@ -48,15 +61,17 @@ describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('platform API (PostgreSQL i
       tokens[who] = (await auth.createSession(ids[who])).access;
     }
     notifications = new NotificationsService(db);
+    assistant = new StubAssistant(db);
     const invitations = new InvitationsService(db, notifications);
     const module = await Test.createTestingModule({
-      controllers: [OrganizationsController, ProjectsController, InvitationsController, NotificationsController, EnvironmentsController, SearchController],
+      controllers: [OrganizationsController, ProjectsController, InvitationsController, NotificationsController, EnvironmentsController, SearchController, AssistantController],
       providers: [
         { provide: AuthService, useValue: auth }, SessionGuard,
         { provide: NotificationsService, useValue: notifications }, { provide: InvitationsService, useValue: invitations },
         { provide: OrganizationsService, useValue: new OrganizationsService(db, invitations) },
         { provide: ProjectsService, useValue: new ProjectsService(db, invitations) },
         { provide: EnvironmentsService, useValue: new EnvironmentsService(db) }, { provide: SearchService, useValue: new SearchService(db) },
+        { provide: AssistantService, useValue: assistant },
       ],
     }).compile();
     app = module.createNestApplication(); app.use(cookieParser()); await app.init();
@@ -175,5 +190,55 @@ describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('platform API (PostgreSQL i
     const overview = await http().get(`/projects/${ids.project}/overview`).set(as('invitee')).expect(200);
     expect(overview.body).toMatchObject({ repository: { repository: 'acme/vault' }, latestRun: null, environments: [{ name: 'Sepolia Testnet', chainId: 11155111 }] });
     expect(overview.body.activity).toHaveLength(14);
+  });
+
+  it('assistant: unavailable without a provider key, read-only access, secrets never reach the provider', async () => {
+    const ask = (who: string, question: string, extra: object = {}) => http().post(`/projects/${ids.project}/assistant`).set(as(who)).send({ question, ...extra });
+    await ask('stranger', 'Why did it fail?').expect(404);
+    expect((await http().get(`/projects/${ids.project}/assistant`).set(as('invitee')).expect(200)).body).toMatchObject({ available: false, context: { label: 'No pipeline runs yet' } });
+    expect((await ask('invitee', 'Why did it fail?').expect(503)).body.message).toMatch(/not configured/);
+    expect(assistant.calls).toHaveLength(0);
+
+    vi.stubEnv('ANTHROPIC_API_KEY', 'test-key');
+    await ask('invitee', '').expect(400);
+    await ask('invitee', 'hi', { deploy: true }).expect(400);
+    await ask('invitee', 'hi', { runId: randomUUID() }).expect(404);
+    const run = (await pool.query<{ id: string }>(
+      `insert into pipeline_runs(project_id, run_number, status, trigger, repository, branch, commit_sha, config_snapshot, failure_stage, failure_reason, started_at, finished_at)
+       values($1, 7, 'failed', 'manual', 'acme/vault', 'main', $2, '{}', 'test', 'Tests failed', now() - interval '2 minutes', now()) returning id`,
+      [ids.project, 'd4b1e9a'.padEnd(40, '0')])).rows[0];
+    await pool.query(`insert into pipeline_run_stages(run_id, key, position, status, log) values ($1, 'checkout', 0, 'success', 'cloned'),
+      ($1, 'test', 2, 'failed', $2), ($1, 'slither', 3, 'skipped', '')`,
+      [run.id, ['[PASS] 12 tests', '[FAIL] Vault withdrawal authorization', 'deployer key 0xdeadbeef', 'token ghp_abcdefghijklmnopqrstuvwxyz0123', 'Expected revert: Unauthorized()'].join('\n')]);
+
+    assistant.reply = async () => ({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify({
+      answer: 'Run #7 failed in the test stage: the withdrawal authorization test did not revert.',
+      next_steps: ['Review the withdrawal access-control check.', ' '],
+      evidence: ['logs', 'run', 'security'],
+      log_excerpt: ['[FAIL] Vault withdrawal authorization', 'Expected revert: Unauthorized()', 'invented line that is not in the log'],
+    }) }] });
+    const answer = await ask('invitee', 'Why did run #7 fail?').expect(200);
+    expect(answer.body).toMatchObject({
+      context: { project: 'Chain Vault', label: 'Run #7 · Commit d4b1e9a', runId: run.id },
+      logExcerpt: { title: 'test.log · excerpt', lines: ['[FAIL] Vault withdrawal authorization', 'Expected revert: Unauthorized()'] },
+      evidence: [
+        { label: 'View full logs', link: `/projects/chain-vault/pipelines/${run.id}` },
+        { label: 'Source: Run #7 details', link: `/projects/chain-vault/pipelines/${run.id}` },
+        { label: 'Source: Security policies', link: '/projects/chain-vault/security' },
+      ],
+      nextSteps: ['Review the withdrawal access-control check.'],
+    });
+    const sent = JSON.stringify(assistant.calls.at(-1));
+    expect(sent).toContain('[FAIL] Vault withdrawal authorization');
+    expect(sent).not.toContain('0xdeadbeef');
+    expect(sent).not.toContain('ghp_abcdefghijklmnopqrstuvwxyz0123');
+    expect(sent).not.toContain('super-secret-key');
+    expect(assistant.calls.at(-1)).not.toHaveProperty('tools');
+
+    assistant.reply = async () => ({ stop_reason: 'refusal', content: [] });
+    await ask('invitee', 'Why did run #7 fail?').expect(422);
+    assistant.reply = async () => { throw new Error('socket hang up'); };
+    expect((await ask('invitee', 'Why did run #7 fail?').expect(503)).body.message).toMatch(/temporarily unavailable/);
+    vi.stubEnv('ANTHROPIC_API_KEY', '');
   });
 });

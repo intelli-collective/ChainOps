@@ -25,7 +25,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const projectPath = (project: Pick<Project, 'slug'>, page: string) => `/projects/${project.slug}/${page}`
 
 /** Renders project pages once the shell has resolved the route project. */
-function WithProject({ children }: { children: (project: Project) => ReactNode }) {
+export function WithProject({ children }: { children: (project: Project) => ReactNode }) {
   const { project, projectStatus, projectError, refreshProject } = useShell()
   if (projectStatus === 'loading' || projectStatus === 'none') return <section className="co-page"><LoadingCard label="project" /></section>
   if (!project) return <section className="co-page"><LoadError code={projectError?.includes('not found') ? 404 : 0} message={projectError ?? 'Project not found'} what="Project" onRetry={refreshProject} /></section>

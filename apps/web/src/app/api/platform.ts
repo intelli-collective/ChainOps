@@ -52,6 +52,19 @@ export interface SearchResult { type: 'project' | 'run' | 'contract'; title: str
 const org = (id: string) => `/organizations/${encodeURIComponent(id)}`
 const project = (id: string) => `/projects/${encodeURIComponent(id)}`
 
+export interface AssistantContext { project: string; label: string; runId: string | null }
+export interface AssistantStatus { available: boolean; model: string; context: AssistantContext }
+export interface AssistantAnswer {
+  context: AssistantContext
+  question: string
+  answer: string
+  logExcerpt: { title: string; lines: string[] } | null
+  evidence: { kind: 'logs' | 'source'; label: string; link: string }[]
+  nextSteps: string[]
+  model: string
+  generatedAt: string
+}
+
 export const platformApi = {
   organizations: () => api<Organization[]>('/organizations'),
   createOrganization: (body: { name: string; slug: string; teamSize: string | null }) => api<Organization>('/organizations', { method: 'POST', body }),
@@ -94,6 +107,10 @@ export const platformApi = {
   notifications: (limit = 50) => api<{ unreadCount: number; items: Notification[] }>(`/notifications?limit=${limit}`),
   markNotificationRead: (id: string) => api(`/notifications/${id}/read`, { method: 'POST', body: {} }),
   markAllNotificationsRead: () => api<{ updated: number }>('/notifications/read-all', { method: 'POST', body: {} }),
+
+  assistantStatus: (projectId: string) => api<AssistantStatus>(`${project(projectId)}/assistant`),
+  askAssistant: (projectId: string, question: string, runId?: string | null) =>
+    api<AssistantAnswer>(`${project(projectId)}/assistant`, { method: 'POST', body: runId ? { question, runId } : { question } }),
 
   search: (q: string) => api<{ query: string; results: SearchResult[] }>(`/search?q=${encodeURIComponent(q)}`),
 }

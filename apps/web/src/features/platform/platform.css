@@ -120,3 +120,39 @@
   .co-inbox-item { flex-wrap: wrap; }
   .co-inbox-item__meta { width: 100%; }
 }
+
+/* ---------- Frames 19/20: AI Assistant ---------- */
+.co-assistant { display: flex; flex-direction: column; gap: 18px; }
+.co-assistant .co-card { padding: 24px; }
+.co-assistant .co-assistant__context { display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: flex-start; text-align: left; gap: 10px; min-height: 84px; color: var(--co-text-primary); font-size: 14px; }
+.co-assistant__context-link { color: var(--co-text-primary); font-weight: 600; text-decoration: none; }
+.co-assistant__context-link:hover { color: var(--co-text-link); text-decoration: underline; }
+.co-assistant__empty p { margin: 0 0 16px; color: var(--co-text-secondary); font-size: 14px; }
+.co-assistant__suggestions { display: flex; flex-wrap: wrap; gap: 8px; }
+.co-assistant__thread { display: flex; flex-direction: column; gap: 18px; }
+.co-assistant__exchange { display: flex; flex-direction: column; gap: 18px; scroll-margin-bottom: 160px; }
+.co-assistant__question { color: var(--co-text-primary); font-size: 16px; overflow-wrap: anywhere; }
+.co-assistant__answer { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; min-height: 160px; }
+.co-assistant__byline { margin: 0; color: var(--co-text-link); font-size: 14px; font-weight: 600; word-spacing: 2px; }
+.co-assistant__byline span { margin: 0 8px; }
+.co-assistant__text { margin: 0; color: var(--co-text-primary); font-size: 16px; line-height: 1.4; overflow-wrap: anywhere; }
+.co-assistant__pending { margin: 0; color: var(--co-text-secondary); font-size: 14px; }
+.co-assistant__error { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; color: var(--co-error); font-size: 14px; }
+.co-assistant__error p { margin: 0; }
+.co-assistant__excerpt { align-self: stretch; margin: 0; padding: 16px; border: 1px solid var(--co-border-card); border-radius: var(--co-radius); background: var(--co-bg-input); }
+.co-assistant__excerpt figcaption { margin-bottom: 12px; color: var(--co-text-primary); font-size: 14px; font-weight: 600; }
+.co-assistant__excerpt pre { margin: 0; color: var(--co-error); font-family: inherit; font-size: 13px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+.co-assistant__sources { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.co-assistant__source { color: var(--co-text-link); font-size: 13px; text-decoration: none; }
+.co-assistant__source:hover { text-decoration: underline; }
+.co-assistant__steps { color: var(--co-text-primary); font-size: 13px; line-height: 1.4; }
+.co-assistant__steps p { margin: 0; }
+.co-assistant__steps ol { margin: 0; padding-left: 18px; }
+.co-assistant__ask { display: flex; align-items: flex-end; gap: 16px; }
+.co-assistant__field { display: flex; flex: 1; flex-direction: column; gap: 8px; min-width: 0; }
+.co-assistant__field .co-control { height: 44px; font-size: 16px; }
+.co-assistant__send { align-self: flex-start; min-width: 226px; height: 42px; margin-top: 2px; }
+@media (max-width: 720px) {
+  .co-assistant__ask { flex-direction: column; align-items: stretch; }
+  .co-assistant__send { align-self: stretch; min-width: 0; }
+}
