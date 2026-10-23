@@ -9,7 +9,8 @@ import { ArtifactsPage, ConfigurePipelinePage, ConnectRepositoryPage, PipelineCo
 import { MonitoringDashboard, ContractEventsExplorer } from './features/monitoring'
 import { SecurityDashboard } from './features/security'
 import { createMockSecurityService } from './features/security/services/mockSecurityService'
-import { DashboardPlaceholder } from './app/DashboardPlaceholder'
+import { InvitationsPage, IntegrationsPage, OrganizationSettingsPage, OrganizationSetupPage, PeoplePage, ProjectsPage } from './features/platform/pages/OrganizationPages'
+import { EnvironmentsPage, NotificationsPage, ProjectDashboardPage, ProjectDetailsPage, ProjectSettingsPage, ReviewStepPage, TeamInfoPage, TeamStepPage, VariablesPage } from './features/platform/pages/ProjectPages'
 import { ApplicationLayout } from './app/layouts/ApplicationLayout'
 import { RoutePlaceholder } from './app/RoutePlaceholder'
 import './App.css'
@@ -35,6 +36,11 @@ function ProjectPage({ page }: { page: ProjectPageKey }) {
   }
 }
 
+function ProjectRedirect() {
+  const { projectId = '' } = useParams()
+  return <Navigate to={`/projects/${encodeURIComponent(projectId)}/dashboard`} replace />
+}
+
 export default function App() {
   return <BrowserRouter><Routes>
     <Route path="/" element={<LandingPage />} />
@@ -44,10 +50,31 @@ export default function App() {
     <Route path="/forgot-password" element={<RecoveryPage mode="forgot" />} />
     <Route path="/reset-password" element={<RecoveryPage mode="reset" />} />
     <Route element={<ProtectedRoutes />}>
+    {/* Organization onboarding has no application sidebar (Figma frame 06). */}
+    <Route path="/onboarding" element={<OrganizationSetupPage />} />
     <Route element={<ApplicationLayout />}>
-      <Route path="/dashboard" element={<DashboardPlaceholder />} />
-      <Route path="/onboarding" element={<DashboardPlaceholder />} />
-      <Route path="/projects" element={<RoutePlaceholder title="Projects" />} />
+      <Route path="/dashboard" element={<Navigate to="/projects" replace />} />
+      <Route path="/projects" element={<ProjectsPage />} />
+      <Route path="/projects/new" element={<ProjectDetailsPage />} />
+      <Route path="/organization/people" element={<PeoplePage />} />
+      <Route path="/organization/integrations" element={<IntegrationsPage />} />
+      <Route path="/organization/settings" element={<OrganizationSettingsPage />} />
+      <Route path="/invitations" element={<InvitationsPage />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
+      <Route path="/projects/:projectId" element={<ProjectRedirect />} />
+      <Route path="/projects/:projectId/dashboard" element={<ProjectDashboardPage />} />
+      <Route path="/projects/:projectId/setup/details" element={<ProjectDetailsPage />} />
+      <Route path="/projects/:projectId/setup/team" element={<TeamStepPage />} />
+      <Route path="/projects/:projectId/setup/review" element={<ReviewStepPage />} />
+      <Route path="/projects/:projectId/settings" element={<ProjectSettingsPage />} />
+      <Route path="/projects/:projectId/environments" element={<EnvironmentsPage />} />
+      <Route path="/projects/:projectId/variables" element={<VariablesPage />} />
+      <Route path="/projects/:projectId/team" element={<TeamInfoPage />} />
+      <Route path="/projects/:projectId/notifications" element={<NotificationsPage />} />
+      <Route path="/projects/:projectId/approvals" element={<RoutePlaceholder title="Approvals" owner="Security & Governance (M4)" />} />
+      <Route path="/projects/:projectId/smart-contracts" element={<RoutePlaceholder title="Smart Contracts" owner="Release & Deployment (M2)" />} />
+      <Route path="/projects/:projectId/alerts" element={<RoutePlaceholder title="Alerts" owner="Monitoring (M3)" />} />
+      <Route path="/projects/:projectId/audit" element={<RoutePlaceholder title="Audit" owner="the platform audit log" />} />
       <Route path="/projects/:projectId/pipelines" element={<ProjectPage page="pipelines" />} />
       <Route path="/projects/:projectId/pipelines/new" element={<ProjectPage page="pipeline-new" />} />
       <Route path="/projects/:projectId/pipelines/configuration" element={<ProjectPage page="pipeline-config" />} />
@@ -56,15 +83,13 @@ export default function App() {
       <Route path="/projects/:projectId/setup/repository" element={<ProjectPage page="setup-repository" />} />
       <Route path="/projects/:projectId/setup/pipeline" element={<ProjectPage page="setup-pipeline" />} />
       <Route path="/projects/:projectId/deployments/new" element={<ProjectPage page="deployments" />} />
-      <Route path="/projects/:projectId/deployments" element={<RoutePlaceholder title="Deployments" />} />
+      <Route path="/projects/:projectId/deployments" element={<RoutePlaceholder title="Release (CD) Pipelines" owner="Release & Deployment (M2)" />} />
       <Route path="/projects/:projectId/contracts" element={<ProjectPage page="contracts" />} />
       <Route path="/projects/:projectId/monitoring" element={<ProjectPage page="monitoring" />} />
       <Route path="/projects/:projectId/monitoring/contracts/:contractId/events" element={<ProjectPage page="events" />} />
       <Route path="/projects/:projectId/security" element={<ProjectPage page="security" />} />
       <Route path="/projects/:projectId/security/scans/:scanId" element={<RoutePlaceholder title="Security scan details" back="security" />} />
-      <Route path="/alerts" element={<RoutePlaceholder title="Alerts" />} />
-      <Route path="/audit" element={<RoutePlaceholder title="Audit" />} />
-      <Route path="/settings" element={<RoutePlaceholder title="Settings" />} />
+      <Route path="/settings" element={<Navigate to="/organization/settings" replace />} />
       <Route path="/deployments" element={<Navigate to="/projects/chainvault/deployments/new" replace />} />
       <Route path="*" element={<RoutePlaceholder title="Page not found" />} />
     </Route>

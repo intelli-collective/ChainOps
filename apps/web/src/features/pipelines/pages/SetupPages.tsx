@@ -5,6 +5,7 @@ import { useLoad } from '../hooks/usePipelineData'
 import { pipelineApi, type PipelineApi } from '../services/pipelineApi'
 import type { ConfigStage, GitHubBranch, GitHubRepository, PipelineConfig, PipelineTrigger, ProjectSummary } from '../types/pipelineRun'
 import { pipelineRunsPath, setupPipelinePath, setupRepositoryPath } from '../utils/pipelineRun'
+import { platformApi } from '../../../app/api/platform'
 import '../pipelines.css'
 
 const OWNER = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/
@@ -16,22 +17,27 @@ export function ConnectRepositoryPage({ projectId, api = pipelineApi }: { projec
 }
 
 function ConnectRepository({ project, routeId, api }: { project: ProjectSummary; routeId: string; api: PipelineApi }) {
-  const { state, reload } = useLoad(async () => ({ status: await api.githubStatus(project.id), config: await api.getConfig(project.id) }), [project.id])
+  const { state, reload } = useLoad(async () => ({
+    status: await api.githubStatus(project.id), config: await api.getConfig(project.id),
+    setupComplete: (await platformApi.project(project.id).catch(() => null))?.setupComplete ?? true,
+  }), [project.id])
+  // While the project is being created, Back returns to wizard step 1 (project details).
+  const backTo = state.status === 'ready' && !state.data.setupComplete ? `/projects/${encodeURIComponent(routeId)}/setup/details` : '/projects'
   return (
     <section className="pr-page" aria-labelledby="setup-title">
-      <PageHeader back="/projects" crumbs={[{ label: 'Build' }, { label: 'Projects', to: '/projects' }, { label: 'Connect your repository' }]}
+      <PageHeader back={backTo} crumbs={[{ label: 'Build' }, { label: 'Projects', to: '/projects' }, { label: 'Connect your repository' }]}
         title="Connect your repository" subtitle="Link your repository to enable automated builds, security checks and deployments." />
       <div className="pr-setup">
         <SetupSteps current={1} completed={[0]} />
         {state.status === 'loading' && <div className="pr-card" aria-busy="true"><span className="pr-skeleton pr-skeleton--title" /><span className="pr-skeleton" /><span className="pr-skeleton" /></div>}
         {state.status === 'error' && <StateMessage role="alert" title="Couldn’t load the GitHub connection" body={state.message} action={<button type="button" className="pr-secondary-button" onClick={reload}>Retry</button>} />}
-        {state.status === 'ready' && <ConnectForm config={state.data.config} project={project} routeId={routeId} api={api} />}
+        {state.status === 'ready' && <ConnectForm config={state.data.config} project={project} routeId={routeId} api={api} backTo={backTo} />}
       </div>
     </section>
   )
 }
 
-function ConnectForm({ config, project, routeId, api }: { config: PipelineConfig | null; project: ProjectSummary; routeId: string; api: PipelineApi }) {
+function ConnectForm({ config, project, routeId, api, backTo }: { config: PipelineConfig | null; project: ProjectSummary; routeId: string; api: PipelineApi; backTo: string }) {
   const navigate = useNavigate()
   // Pre-filled from an existing configuration.
   const [owner, setOwner] = useState(config?.repository.split('/')[0] ?? '')
@@ -124,7 +130,7 @@ function ConnectForm({ config, project, routeId, api }: { config: PipelineConfig
       <p className="pr-help pr-help--muted"><span aria-hidden="true">○</span> Webhooks not configured · Start runs manually from Pipeline Runs.</p>
       {error && <p className="pr-form-error" role="alert">{error}</p>}
       <div className="pr-form-actions">
-        <Link className="pr-outline-button pr-outline-button--wide" to="/projects"><span aria-hidden="true">←</span> Back</Link>
+        <Link className="pr-outline-button pr-outline-button--wide" to={backTo}><span aria-hidden="true">←</span> Back</Link>
         <button type="submit" className="pr-primary-button pr-primary-button--wide" disabled={loading !== null || loadingBranches}>{loading === 'save' ? 'Saving…' : <>Connect repository <span aria-hidden="true">→</span></>}</button>
       </div>
     </form>
@@ -146,7 +152,10 @@ export function ConfigurePipelinePage({ projectId, api = pipelineApi }: { projec
 }
 
 function ConfigureSetup({ project, routeId, api }: { project: ProjectSummary; routeId: string; api: PipelineApi }) {
-  const { state, reload } = useLoad(() => api.getConfig(project.id), [project.id])
+  const { state, reload } = useLoad(async () => ({
+    config: await api.getConfig(project.id),
+    setupComplete: (await platformApi.project(project.id).catch(() => null))?.setupComplete ?? true,
+  }), [project.id])
   return (
     <section className="pr-page" aria-labelledby="setup-title">
       <PageHeader back={setupRepositoryPath(routeId)} crumbs={[{ label: 'Build' }, { label: 'Projects', to: '/projects' }, { label: 'Configure pipeline' }]}
@@ -155,17 +164,17 @@ function ConfigureSetup({ project, routeId, api }: { project: ProjectSummary; ro
         <SetupSteps current={2} completed={[0, 1]} />
         {state.status === 'loading' && <div className="pr-card" aria-busy="true"><span className="pr-skeleton pr-skeleton--title" /><span className="pr-skeleton" /></div>}
         {state.status === 'error' && <StateMessage role="alert" title="Couldn’t load the pipeline" body={state.message} action={<button type="button" className="pr-secondary-button" onClick={reload}>Retry</button>} />}
-        {state.status === 'ready' && !state.data && (
+        {state.status === 'ready' && !state.data.config && (
           <StateMessage title="Connect a repository first" body="The pipeline needs a repository before checks can be configured."
             action={<Link className="pr-primary-button" to={setupRepositoryPath(routeId)}>Connect repository →</Link>} />
         )}
-        {state.status === 'ready' && state.data && <ChecksForm config={state.data} project={project} routeId={routeId} api={api} />}
+        {state.status === 'ready' && state.data.config && <ChecksForm config={state.data.config} project={project} routeId={routeId} api={api} setupComplete={state.data.setupComplete} />}
       </div>
     </section>
   )
 }
 
-function ChecksForm({ config, project, routeId, api }: { config: PipelineConfig; project: ProjectSummary; routeId: string; api: PipelineApi }) {
+function ChecksForm({ config, project, routeId, api, setupComplete }: { config: PipelineConfig; project: ProjectSummary; routeId: string; api: PipelineApi; setupComplete: boolean }) {
   const navigate = useNavigate()
   const enabled = new Set<string>(config.stages)
   const [build, setBuild] = useState(config.buildCommand ?? config.effectiveBuildCommand)
@@ -194,7 +203,8 @@ function ChecksForm({ config, project, routeId, api }: { config: PipelineConfig;
         testCommand: test.trim() === config.effectiveTestCommand && config.testCommand === null ? null : test.trim(),
         triggers: [...(TRIGGER_OPTIONS.find((option) => option.value === trigger)?.triggers ?? []), ...(config.triggers.includes('tag') ? ['tag' as const] : [])],
       })
-      navigate(pipelineRunsPath(routeId))
+      // During project creation the next step is the team step (M5); otherwise back to the runs.
+      navigate(setupComplete ? pipelineRunsPath(routeId) : `/projects/${encodeURIComponent(routeId)}/setup/team`)
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : 'Could not save the pipeline.')
       setSaving(false)
@@ -222,7 +232,7 @@ function ChecksForm({ config, project, routeId, api }: { config: PipelineConfig;
       {error && <p className="pr-form-error" role="alert">{error}</p>}
       <div className="pr-form-actions">
         <Link className="pr-outline-button pr-outline-button--wide" to={setupRepositoryPath(routeId)}><span aria-hidden="true">←</span> Back</Link>
-        <button type="submit" className="pr-primary-button pr-primary-button--wide" disabled={saving}>{saving ? 'Saving…' : <>Save &amp; continue <span aria-hidden="true">→</span></>}</button>
+        <button type="submit" className="pr-primary-button pr-primary-button--wide" disabled={saving}>{saving ? 'Saving…' : setupComplete ? <>Save &amp; continue <span aria-hidden="true">→</span></> : <>Invite team <span aria-hidden="true">→</span></>}</button>
       </div>
     </form>
   )
