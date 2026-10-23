@@ -1,3 +1,7 @@
+import { ReleaseController } from './deployments/release.controller.js';
+import { ReleaseService } from './deployments/release.service.js';
+import { ReleaseGuard } from './deployments/release.guard.js';
+import { ReleaseIntegration } from './deployments/release.integration.js';
 import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
@@ -41,7 +45,41 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'api',
     }),
   ],
-  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, MonitoringController, MonitoringRuntimeController, MonitoringProjectsController],
-  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard, MonitoringRuntimeService, RegistryGateway, ChainGateway, MonitoringWorker],
+ controllers: [
+  ReleaseController,
+  AppController,
+  HealthController,
+  AuthController,
+  OAuthController,
+  ContractsController,
+  SecurityPolicyController,
+  ApprovalRequestController,
+  PipelineConfigController,
+  MonitoringController,
+  MonitoringRuntimeController,
+  MonitoringProjectsController,
+],
+providers: [
+  ReleaseService,
+  ReleaseGuard,
+  ReleaseIntegration,
+  AppService,
+  DatabaseService,
+  AuthService,
+  OAuthService,
+  ContractsService,
+  ContractsGuard,
+  ProjectAccessService,
+  SecurityPolicyService,
+  ApprovalRequestService,
+  PipelineConfigService,
+  AccessTokenGuard,
+  MonitoringService,
+  MonitoringAuthGuard,
+  MonitoringRuntimeService,
+  RegistryGateway,
+  ChainGateway,
+  MonitoringWorker,
+],
 })
 export class AppModule {}
