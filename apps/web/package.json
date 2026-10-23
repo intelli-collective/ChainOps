@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "test:security": "vitest run --config vitest.config.ts",
     "test:auth": "vitest run --config vitest.auth.config.ts",
+    "test:monitoring": "vitest run --config vitest.monitoring.config.ts",
+    "preview": "vite preview"
     "preview": "vite preview",
     "test:member2": "vitest run --config vitest.member2.config.ts"
   },

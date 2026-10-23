@@ -26,6 +26,11 @@ import { ApprovalRequestService } from './security-governance/approval-request.s
 import { ContractsController } from './contracts/contracts.controller.js';
 import { ContractsService } from './contracts/contracts.service.js';
 import { ContractsGuard } from './contracts/contracts.guard.js';
+import { MonitoringProjectsController, MonitoringRuntimeController } from './monitoring/runtime.controller.js';
+import { MonitoringRuntimeService } from './monitoring/runtime.service.js';
+import { RegistryGateway } from './monitoring/registry.gateway.js';
+import { ChainGateway } from './monitoring/chain.gateway.js';
+import { MonitoringWorker } from './monitoring/monitoring.worker.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -40,7 +45,41 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'api',
     }),
   ],
-  controllers: [ReleaseController, AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, MonitoringController],
-  providers: [ReleaseService, ReleaseGuard, ReleaseIntegration, AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard],
+ controllers: [
+  ReleaseController,
+  AppController,
+  HealthController,
+  AuthController,
+  OAuthController,
+  ContractsController,
+  SecurityPolicyController,
+  ApprovalRequestController,
+  PipelineConfigController,
+  MonitoringController,
+  MonitoringRuntimeController,
+  MonitoringProjectsController,
+],
+providers: [
+  ReleaseService,
+  ReleaseGuard,
+  ReleaseIntegration,
+  AppService,
+  DatabaseService,
+  AuthService,
+  OAuthService,
+  ContractsService,
+  ContractsGuard,
+  ProjectAccessService,
+  SecurityPolicyService,
+  ApprovalRequestService,
+  PipelineConfigService,
+  AccessTokenGuard,
+  MonitoringService,
+  MonitoringAuthGuard,
+  MonitoringRuntimeService,
+  RegistryGateway,
+  ChainGateway,
+  MonitoringWorker,
+],
 })
 export class AppModule {}

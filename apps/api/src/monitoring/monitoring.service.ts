@@ -17,7 +17,7 @@ const ruleColumns =
 export class MonitoringService {
   constructor(@Inject(DatabaseService) private readonly db: DatabaseService) {}
 
-  private async project<T>(
+  async project<T>(
     projectId: string,
     userId: string,
     work: (client: pg.PoolClient) => Promise<T>,

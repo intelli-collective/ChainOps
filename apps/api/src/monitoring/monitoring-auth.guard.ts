@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthService } from '../auth/auth.service.js';
+import { requireCsrf } from '../auth/csrf.js';
 
 export type MonitoringRequest = Request & { monitoringUserId: string };
 
@@ -16,12 +17,20 @@ export class MonitoringAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<MonitoringRequest>();
-    // Existing HttpOnly cookies have Path=/auth. Explicit Bearer authorization
-    // reuses the same JWT/session verification without expanding cookie scope.
-    const match = /^Bearer ([^\s]+)$/i.exec(req.get('authorization') ?? '');
-    if (!match)
+    const authorization = req.get('authorization');
+    const match = /^Bearer ([^\s]+)$/i.exec(authorization ?? '');
+    if (authorization && !match)
+      throw new UnauthorizedException('Invalid Bearer authorization');
+    const cookie = (req.cookies as Record<string, string> | undefined)
+      ?.chainops_access;
+    const token = match?.[1] ?? cookie;
+    if (!token)
       throw new UnauthorizedException('A Bearer access token is required');
-    const { user } = await this.auth.authenticate(match[1]);
+    const { user } = await this.auth.authenticate(token);
+    // Reuse the merged M5 root-path access cookie. Cookie-authenticated writes
+    // require the existing Origin + double-submit CSRF protection.
+    if (!match && !['GET', 'HEAD', 'OPTIONS'].includes(req.method))
+      requireCsrf(req);
     req.monitoringUserId = user.id;
     return true;
   }

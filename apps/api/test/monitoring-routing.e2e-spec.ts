@@ -26,6 +26,12 @@ describe('monitoring routes registered in AppModule', () => {
     ['post', 'monitored-contracts'],
     ['get', 'alert-rules'],
     ['post', 'alert-rules'],
+    ['get', 'monitoring/overview'],
+    ['get', 'monitoring/watchers'],
+    ['get', 'monitoring/events'],
+    ['get', 'monitoring/rules'],
+    ['get', 'monitoring/alerts'],
+    ['post', 'monitoring/targets'],
   ] as const)(
     '%s /projects/:projectId/%s reaches the authentication guard',
     async (method, resource) => {
