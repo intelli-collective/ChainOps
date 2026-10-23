@@ -1,3 +1,4 @@
+
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
@@ -6,9 +7,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/auth': 'http://localhost:3000',
+      '/auth': process.env.API_URL ?? 'http://localhost:3000',
+
+      // Forward /api/... to the backend without the /api prefix.
+      // This avoids conflicts with frontend routes such as /projects.
       '/api': {
-        target: 'http://localhost:3000',
+        target: process.env.API_URL ?? 'http://localhost:3000',
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },

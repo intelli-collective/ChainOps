@@ -1,3 +1,5 @@
+import type { MouseEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import type { PipelineRun } from '../types/pipelineRun'
 import { formatDuration, formatStartedAt, pipelineRunPath, shortSha } from '../utils/pipelineRun'
 import { RunStatusBadge } from './RunStatusBadge'
@@ -8,6 +10,7 @@ interface PipelineRunsTableProps {
 }
 
 export function PipelineRunsTable({ projectId, runs }: PipelineRunsTableProps) {
+  const navigate = useNavigate()
   return (
     <div className="pr-table-wrap" tabIndex={0} role="region" aria-label="Pipeline runs">
       <table className="pr-table">
@@ -24,11 +27,12 @@ export function PipelineRunsTable({ projectId, runs }: PipelineRunsTableProps) {
         </thead>
         <tbody>
           {runs.map((run) => (
-            <tr key={run.id}>
+            // The whole row opens the run; the run number is the keyboard-accessible link.
+            <tr key={run.id} className="pr-table__row" onClick={() => navigate(pipelineRunPath(projectId, run.id))}>
               <td>
-                <a className="pr-link" href={pipelineRunPath(projectId, run.id)} aria-label={`Open run #${run.runNumber}`}>
+                <Link className="pr-link" to={pipelineRunPath(projectId, run.id)} aria-label={`Open run #${run.runNumber}`} onClick={(event: MouseEvent) => event.stopPropagation()}>
                   #{run.runNumber}
-                </a>
+                </Link>
               </td>
               <td><code className="pr-sha" title={run.commitSha}>{shortSha(run.commitSha)}</code></td>
               <td>{run.branch}</td>

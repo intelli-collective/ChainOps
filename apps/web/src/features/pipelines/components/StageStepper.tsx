@@ -3,21 +3,11 @@ import type { PipelineStage, StageKey, StageStatus } from '../types/pipelineRun'
 import { STAGE_STATUS_LABELS, stageTabId } from '../utils/pipelineRun'
 import { ArrowIcon } from './ArrowIcon'
 
+// Stage marks are the text glyphs used in the Figma run frames.
+const GLYPHS: Record<StageStatus, string> = { success: '✓', failed: '✕', running: '◉', cancelled: '⊘', pending: '○', skipped: '○' }
+
 function StageIcon({ status }: { status: StageStatus }) {
-  const common = { width: 14, height: 14, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, 'aria-hidden': true }
-  switch (status) {
-    case 'success':
-      return <svg {...common}><path d="M3 8.5l3.2 3L13 4.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-    case 'failed':
-      return <svg {...common}><path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" /></svg>
-    case 'running':
-      return <svg {...common}><circle cx="8" cy="8" r="5.5" /><circle cx="8" cy="8" r="3.2" fill="currentColor" stroke="none" /></svg>
-    case 'cancelled':
-      return <svg {...common}><circle cx="8" cy="8" r="5.5" /><path d="M4.2 11.8l7.6-7.6" /></svg>
-    case 'pending':
-    case 'skipped':
-      return <svg {...common}><circle cx="8" cy="8" r="5.5" /></svg>
-  }
+  return <span aria-hidden="true">{GLYPHS[status]}</span>
 }
 
 interface StageStepperProps {

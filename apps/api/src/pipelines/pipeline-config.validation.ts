@@ -1,27 +1,35 @@
 import { BadRequestException } from '@nestjs/common';
 
-// Stage keys a pipeline configuration may list. Stored as metadata only;
-// nothing in this module executes them.
+// Stage keys a pipeline configuration may list. `compile` is accepted as an older
+// name for `build`. Security stages (security/slither/policy) are evaluated by M4.
 export const PIPELINE_STAGES = ['checkout', 'compile', 'build', 'test', 'security', 'slither', 'policy'] as const;
 // Mirrors projects.framework (migrations/001_core_schema.sql).
 export const PIPELINE_FRAMEWORKS = ['hardhat', 'foundry', 'other'] as const;
+export const PIPELINE_TRIGGERS = ['push', 'pull_request', 'tag'] as const;
 
 export type PipelineStage = (typeof PIPELINE_STAGES)[number];
 export type PipelineFramework = (typeof PIPELINE_FRAMEWORKS)[number];
+export type PipelineTrigger = (typeof PIPELINE_TRIGGERS)[number];
 export interface PipelineConfigInput {
   name: string;
   repository: string;
   branch: string;
   framework?: PipelineFramework;
   stages: PipelineStage[];
+  // null = use the framework default command.
+  buildCommand?: string | null;
+  testCommand?: string | null;
+  triggers?: PipelineTrigger[];
+  slitherConfig?: string | null;
 }
 export type PipelineConfigPatch = Partial<PipelineConfigInput>;
 
-const FIELDS = ['name', 'repository', 'branch', 'framework', 'stages'] as const;
+const FIELDS = ['name', 'repository', 'branch', 'framework', 'stages', 'buildCommand', 'testCommand', 'triggers', 'slitherConfig'] as const;
 // GitHub owner/repo shape: owner is 1-39 alphanumerics or hyphens, repo up to 100 of [A-Za-z0-9._-].
 const REPOSITORY = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}\/[A-Za-z0-9._-]{1,100}$/;
 // Conservative subset of git ref-name rules.
 const BRANCH = /^[A-Za-z0-9._/-]+$/;
+const CONFIG_PATH = /^[A-Za-z0-9._/-]{1,200}$/;
 
 function fields(body: unknown): Record<string, unknown> {
   if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('Request body must be a JSON object.');
@@ -61,9 +69,39 @@ function stages(value: unknown): PipelineStage[] {
   return value as PipelineStage[];
 }
 
+// Commands run inside the isolated build container, never on the API host.
+function command(value: unknown, label: string): string | null {
+  if (value === null) return null;
+  if (typeof value !== 'string' || !value.trim() || value.trim().length > 300 || Array.from(value).some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127)) {
+    throw new BadRequestException(`${label} must be a single-line command of at most 300 characters, or null for the framework default.`);
+  }
+  return value.trim();
+}
+
+function triggers(value: unknown): PipelineTrigger[] {
+  if (!Array.isArray(value) || value.some((item) => !(PIPELINE_TRIGGERS as readonly unknown[]).includes(item))) {
+    throw new BadRequestException(`triggers must be an array of: ${PIPELINE_TRIGGERS.join(', ')}.`);
+  }
+  if (new Set(value).size !== value.length) throw new BadRequestException('triggers must not contain duplicates.');
+  return value as PipelineTrigger[];
+}
+
+function slitherConfig(value: unknown): string | null {
+  if (value === null) return null;
+  if (typeof value !== 'string' || !CONFIG_PATH.test(value.trim()) || value.includes('..')) throw new BadRequestException('slitherConfig must be a relative file path such as "slither.config.json".');
+  return value.trim();
+}
+
+function optional(b: Record<string, unknown>, target: PipelineConfigPatch) {
+  if (b.buildCommand !== undefined) target.buildCommand = command(b.buildCommand, 'buildCommand');
+  if (b.testCommand !== undefined) target.testCommand = command(b.testCommand, 'testCommand');
+  if (b.triggers !== undefined) target.triggers = triggers(b.triggers);
+  if (b.slitherConfig !== undefined) target.slitherConfig = slitherConfig(b.slitherConfig);
+}
+
 export function parseCreate(body: unknown): PipelineConfigInput {
   const b = fields(body);
-  return {
+  const input: PipelineConfigInput = {
     name: name(b.name),
     repository: repository(b.repository),
     branch: branch(b.branch),
@@ -71,6 +109,8 @@ export function parseCreate(body: unknown): PipelineConfigInput {
     framework: b.framework === undefined ? undefined : framework(b.framework),
     stages: stages(b.stages),
   };
+  optional(b, input);
+  return input;
 }
 
 export function parsePatch(body: unknown): PipelineConfigPatch {
@@ -81,6 +121,12 @@ export function parsePatch(body: unknown): PipelineConfigPatch {
   if (b.branch !== undefined) patch.branch = branch(b.branch);
   if (b.framework !== undefined) patch.framework = framework(b.framework);
   if (b.stages !== undefined) patch.stages = stages(b.stages);
+  optional(b, patch);
   if (Object.keys(patch).length === 0) throw new BadRequestException(`Provide at least one of: ${FIELDS.join(', ')}.`);
   return patch;
+}
+
+// Effective commands when the configuration leaves them empty.
+export function defaultCommands(fw: PipelineFramework): { build: string; test: string } {
+  return fw === 'foundry' ? { build: 'forge build', test: 'forge test' } : { build: 'npx hardhat compile', test: 'npx hardhat test' };
 }

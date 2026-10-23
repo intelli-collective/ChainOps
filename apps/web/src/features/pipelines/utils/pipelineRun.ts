@@ -6,6 +6,7 @@ export const RUN_STATUS_LABELS: Record<RunStatus, string> = {
   success: 'Passed',
   failed: 'Failed',
   cancelled: 'Cancelled',
+  error: 'Error',
 }
 
 export const RUN_TRIGGER_LABELS: Record<RunTrigger, string> = {
@@ -40,18 +41,21 @@ export function defaultStage(stages: PipelineStage[]): PipelineStage | undefined
   )
 }
 
-export const DEFAULT_FILTERS: PipelineRunFilters = {
-  search: '',
-  status: 'all',
-  branch: 'all',
-  from: '2026-10-01',
-  to: '2026-10-31',
-}
+export const DEFAULT_FILTERS: PipelineRunFilters = { search: '', status: 'all', branch: 'all', from: '', to: '' }
 
 export const pipelineRunsPath = (projectId: string) => `/projects/${encodeURIComponent(projectId)}/pipelines`
 
 export const pipelineRunPath = (projectId: string, runId: string) =>
   `${pipelineRunsPath(projectId)}/${encodeURIComponent(runId)}`
+
+export const newRunPath = (projectId: string) => `${pipelineRunsPath(projectId)}/new`
+export const configurationPath = (projectId: string) => `${pipelineRunsPath(projectId)}/configuration`
+export const artifactsPath = (projectId: string, runId: string) => `${pipelineRunPath(projectId, runId)}/artifacts`
+export const setupRepositoryPath = (projectId: string) => `/projects/${encodeURIComponent(projectId)}/setup/repository`
+export const setupPipelinePath = (projectId: string) => `/projects/${encodeURIComponent(projectId)}/setup/pipeline`
+
+export const TERMINAL_RUN_STATUSES: RunStatus[] = ['success', 'failed', 'cancelled', 'error']
+export const isActiveRun = (status: RunStatus) => status === 'queued' || status === 'running'
 
 export const shortSha = (sha: string) => sha.slice(0, 7)
 

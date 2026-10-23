@@ -18,7 +18,7 @@ export function PipelineRunFilterBar({ filters, branches, disabled, onChange }: 
       <input
         type="search"
         className="pr-control pr-filters__search"
-        placeholder="Search runs, commits, or author..."
+        placeholder="Search runs, commits, or author…"
         aria-label="Search runs, commits, or author"
         value={filters.search}
         onChange={(event) => onChange({ ...filters, search: event.target.value })}

@@ -2,12 +2,13 @@ import type { PipelineRunDetails } from '../types/pipelineRun'
 import { shortSha } from '../utils/pipelineRun'
 import { ArrowIcon } from './ArrowIcon'
 
-export function RunProvenance({ run }: { run: PipelineRunDetails }) {
+/** Commit → run → artifact traceability strip. */
+export function RunProvenance({ run }: { run: Pick<PipelineRunDetails, 'commitSha' | 'runNumber' | 'repository' | 'contracts'> }) {
   const items = [
-    { label: 'Source', value: shortSha(run.commitSha), title: run.commitSha },
+    { label: 'Source', value: shortSha(run.commitSha), title: `${run.repository}@${run.commitSha}` },
     { label: 'Run', value: `#${run.runNumber}` },
-    run.contract && { label: 'Contract', value: `${run.contract.name} ${run.contract.version}` },
-    run.network && { label: 'Network', value: run.network },
+    run.contracts.length > 0 && { label: run.contracts.length > 1 ? 'Contracts' : 'Contract', value: run.contracts.join(', ') },
+    { label: 'Repository', value: run.repository },
   ].filter((item) => !!item)
 
   return (

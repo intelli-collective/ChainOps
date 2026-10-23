@@ -25,6 +25,7 @@
     "db:seed": "node --env-file-if-exists=../../.env.local --env-file-if-exists=../../.env scripts/seed.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.1.0",
     "@nestjs/common": "^12.0.1",
     "@nestjs/core": "^12.0.1",
     "@nestjs/observe": "^0.3.0",
