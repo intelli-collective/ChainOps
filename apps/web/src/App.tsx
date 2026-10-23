@@ -5,7 +5,7 @@ import { RecoveryPage } from './features/auth/RecoveryPage'
 import { DeploymentPage } from './features/deployments'
 import { ContractRegistryPage } from './features/contracts'
 import { LandingPage } from './features/landing/LandingPage'
-import { PipelineRunsPage } from './features/pipelines'
+import { ArtifactsPage, ConfigurePipelinePage, ConnectRepositoryPage, PipelineConfigurationPage, PipelineRunDetailsPage, PipelineRunsPage, RunPipelinePage } from './features/pipelines'
 import { MonitoringDashboard, ContractEventsExplorer } from './features/monitoring'
 import { SecurityDashboard } from './features/security'
 import { createMockSecurityService } from './features/security/services/mockSecurityService'
@@ -15,11 +15,18 @@ import { RoutePlaceholder } from './app/RoutePlaceholder'
 import './App.css'
 
 const securityService = createMockSecurityService()
-function ProjectPage({ page }: { page: 'pipelines' | 'deployments' | 'contracts' | 'monitoring' | 'events' | 'security' }) {
-  const { projectId = 'chainvault', contractId } = useParams()
+type ProjectPageKey = 'pipelines' | 'deployments' | 'contracts' | 'monitoring' | 'events' | 'security' | 'pipeline-run' | 'pipeline-new' | 'pipeline-config' | 'pipeline-artifacts' | 'setup-repository' | 'setup-pipeline'
+function ProjectPage({ page }: { page: ProjectPageKey }) {
+  const { projectId = 'chainvault', contractId, runId = '' } = useParams()
   const navigate = useNavigate()
   switch (page) {
     case 'pipelines': return <PipelineRunsPage key={projectId} projectId={projectId} />
+    case 'pipeline-run': return <PipelineRunDetailsPage key={`${projectId}/${runId}`} projectId={projectId} runId={runId} />
+    case 'pipeline-new': return <RunPipelinePage key={projectId} projectId={projectId} />
+    case 'pipeline-config': return <PipelineConfigurationPage key={projectId} projectId={projectId} />
+    case 'pipeline-artifacts': return <ArtifactsPage key={`${projectId}/${runId}`} projectId={projectId} runId={runId} />
+    case 'setup-repository': return <ConnectRepositoryPage key={projectId} projectId={projectId} />
+    case 'setup-pipeline': return <ConfigurePipelinePage key={projectId} projectId={projectId} />
     case 'deployments': return <DeploymentPage key={projectId} projectId={projectId} historyHref={`/projects/${encodeURIComponent(projectId)}/deployments`} />
     case 'contracts': return <ContractRegistryPage key={projectId} projectId={projectId} />
     case 'monitoring': return <MonitoringDashboard key={projectId} projectId={projectId} onOpenEventExplorer={navigate} />
@@ -42,7 +49,12 @@ export default function App() {
       <Route path="/onboarding" element={<DashboardPlaceholder />} />
       <Route path="/projects" element={<RoutePlaceholder title="Projects" />} />
       <Route path="/projects/:projectId/pipelines" element={<ProjectPage page="pipelines" />} />
-      <Route path="/projects/:projectId/pipelines/:runId" element={<RoutePlaceholder title="Pipeline run details" back="pipelines" />} />
+      <Route path="/projects/:projectId/pipelines/new" element={<ProjectPage page="pipeline-new" />} />
+      <Route path="/projects/:projectId/pipelines/configuration" element={<ProjectPage page="pipeline-config" />} />
+      <Route path="/projects/:projectId/pipelines/:runId" element={<ProjectPage page="pipeline-run" />} />
+      <Route path="/projects/:projectId/pipelines/:runId/artifacts" element={<ProjectPage page="pipeline-artifacts" />} />
+      <Route path="/projects/:projectId/setup/repository" element={<ProjectPage page="setup-repository" />} />
+      <Route path="/projects/:projectId/setup/pipeline" element={<ProjectPage page="setup-pipeline" />} />
       <Route path="/projects/:projectId/deployments/new" element={<ProjectPage page="deployments" />} />
       <Route path="/projects/:projectId/deployments" element={<RoutePlaceholder title="Deployments" />} />
       <Route path="/projects/:projectId/contracts" element={<ProjectPage page="contracts" />} />

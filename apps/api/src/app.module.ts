@@ -14,6 +14,12 @@ import { MonitoringAuthGuard } from './monitoring/monitoring-auth.guard.js';
 import { PipelineConfigController } from './pipelines/pipeline-config.controller.js';
 import { PipelineConfigService } from './pipelines/pipeline-config.service.js';
 import { AccessTokenGuard } from './pipelines/access-token.guard.js';
+import { PipelineRunsController } from './pipelines/pipeline-runs.controller.js';
+import { PipelineRunsService } from './pipelines/pipeline-runs.service.js';
+import { PipelineWorkerService } from './pipelines/pipeline-worker.service.js';
+import { GitHubController } from './pipelines/github.controller.js';
+import { GitHubService } from './pipelines/github.service.js';
+import { ProjectLookupController } from './pipelines/project-lookup.controller.js';
 import { ProjectAccessService } from './security-governance/project-access.service.js';
 import { SecurityPolicyController } from './security-governance/security-policy.controller.js';
 import { SecurityPolicyService } from './security-governance/security-policy.service.js';
@@ -36,7 +42,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'api',
     }),
   ],
-  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, MonitoringController],
-  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard],
+  controllers: [AppController, HealthController, AuthController, OAuthController, ContractsController, SecurityPolicyController, ApprovalRequestController, PipelineConfigController, PipelineRunsController, GitHubController, ProjectLookupController, MonitoringController],
+  providers: [AppService, DatabaseService, AuthService, OAuthService, ContractsService, ContractsGuard, ProjectAccessService, SecurityPolicyService, ApprovalRequestService, PipelineConfigService, PipelineRunsService, PipelineWorkerService, GitHubService, AccessTokenGuard, MonitoringService, MonitoringAuthGuard],
 })
 export class AppModule {}

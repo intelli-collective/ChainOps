@@ -11,6 +11,7 @@ import { AuthService } from '../src/auth/auth.service.js';
 import { AccessTokenGuard } from '../src/pipelines/access-token.guard.js';
 import { PipelineConfigController } from '../src/pipelines/pipeline-config.controller.js';
 import { PipelineConfigService } from '../src/pipelines/pipeline-config.service.js';
+import { GitHubService } from '../src/pipelines/github.service.js';
 
 // Explicit opt-in only (same variable as the auth suite). Every table lives in a
 // uniquely named test schema that is dropped afterwards; no shared data is touched.
@@ -27,7 +28,7 @@ describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('pipeline configuration API
     admin = new pg.Client({ connectionString: process.env.AUTH_TEST_DATABASE_URL }); await admin.connect();
     await admin.query(`create schema "${schema}"`);
     pool = new pg.Pool({ connectionString: process.env.AUTH_TEST_DATABASE_URL, options: `-c search_path=${schema}` });
-    for (const name of ['001_core_schema.sql', '002_authentication.sql', '003_password_resets.sql', '004_pipeline_configs.sql']) {
+    for (const name of ['001_core_schema.sql', '002_authentication.sql', '003_password_resets.sql', '004_pipeline_configs.sql', '005_pipeline_execution.sql']) {
       await pool.query(await readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8'));
     }
     const db = { query: (sql: string, args?: unknown[]) => pool.query(sql, args), transaction: async (work: (c: pg.PoolClient) => Promise<unknown>) => {
@@ -44,12 +45,14 @@ describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('pipeline configuration API
     emptyProjectId = await project(memberOrg, 'token-factory', 'foundry', member);
     otherProjectId = await project(otherOrg, 'dao-governance', 'foundry', outsider);
 
+    // GitHub is stubbed: these tests cover the API and database, not network access.
+    const github = { resolveBranch: async () => 'a'.repeat(40) } as unknown as GitHubService;
     const auth = new AuthService(db);
     memberToken = (await auth.createSession(member)).access;
     outsiderToken = (await auth.createSession(outsider)).access;
     const module = await Test.createTestingModule({
       controllers: [PipelineConfigController],
-      providers: [{ provide: AuthService, useValue: auth }, { provide: PipelineConfigService, useValue: new PipelineConfigService(db) }, AccessTokenGuard],
+      providers: [{ provide: AuthService, useValue: auth }, { provide: PipelineConfigService, useValue: new PipelineConfigService(db, github) }, AccessTokenGuard],
     }).compile();
     app = module.createNestApplication(); await app.init();
   }, 60000);

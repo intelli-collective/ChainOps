@@ -44,4 +44,22 @@ describe('pipeline configuration validation', () => {
     expect(() => parsePatch({ name: null })).toThrow(BadRequestException);
     expect(() => parsePatch({ projectId: 'x' })).toThrow(BadRequestException);
   });
+
+  it('accepts build/test commands, triggers and a Slither config path; null resets a command to the default', () => {
+    expect(parsePatch({ buildCommand: 'npx hardhat compile --force', testCommand: null, triggers: ['push', 'tag'], slitherConfig: 'config/slither.json' }))
+      .toEqual({ buildCommand: 'npx hardhat compile --force', testCommand: null, triggers: ['push', 'tag'], slitherConfig: 'config/slither.json' });
+    expect(parsePatch({ triggers: [] })).toEqual({ triggers: [] });
+  });
+
+  it.each([
+    ['a multi-line command', { buildCommand: 'npm ci\nnpx hardhat compile' }],
+    ['an empty command', { testCommand: '   ' }],
+    ['an over-long command', { buildCommand: 'x'.repeat(301) }],
+    ['an unknown trigger', { triggers: ['schedule'] }],
+    ['duplicate triggers', { triggers: ['push', 'push'] }],
+    ['a Slither config outside the repository', { slitherConfig: '../secrets.json' }],
+  ])('rejects %s', (_label, body) => {
+    expect(() => parsePatch(body)).toThrow(BadRequestException);
+  });
 });
+
