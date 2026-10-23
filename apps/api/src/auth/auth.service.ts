@@ -53,8 +53,7 @@ export class AuthService {
       });
     } catch (error) {
       if ((error as { code?: string }).code !== '23505') throw error;
-      // Same response for existing addresses; do not disclose registration status.
-      return { verificationRequired: true, message: 'If registration is available, check your email to verify ownership.' };
+      throw new ConflictException('An account with this email already exists.');
     }
     await this.deliver(input.email, token);
     return { verificationRequired: true, message: 'Check your email to verify ownership before signing in.' };
@@ -231,7 +230,13 @@ export class AuthService {
         return created.rows[0].id;
       });
     } catch (error) {
-      if ((error as { code?: string }).code === '23505') throw new ConflictException('Account identity already exists. Sign in using its original method.');
+      if ((error as { code?: string }).code === '23505') {
+        // The failed transaction has rolled back. A concurrent callback may have
+        // committed this exact provider identity; never fall back to email.
+        const { rows } = await this.db.query<{ user_id: string }>('select user_id from auth_identities where provider=$1 and subject=$2', [provider,subject]);
+        if (rows[0]) return rows[0].user_id;
+        throw new ConflictException('Account identity already exists. Sign in using its original method.');
+      }
       throw error;
     }
   }

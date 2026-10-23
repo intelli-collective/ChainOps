@@ -40,6 +40,15 @@ describe('authentication validation', () => {
 });
 
 describe('OAuth failures', () => {
+  it('recovers only the exact provider identity after a concurrent unique conflict', async () => {
+    const transaction = vi.fn().mockRejectedValue({code:'23505'});
+    const query = vi.fn().mockResolvedValue({rows:[{user_id:'winner'}]});
+    const service = new AuthService({transaction,query} as unknown as DatabaseService);
+    await expect(service.providerUser('github','123','email@example.test','Name')).resolves.toBe('winner');
+    expect(query).toHaveBeenCalledWith(expect.any(String),['github','123']);
+    query.mockResolvedValue({rows:[]});
+    await expect(service.providerUser('github','456','email@example.test','Name')).rejects.toMatchObject({status:409});
+  });
   it('rejects missing browser binding and mismatched or expired states before network calls', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [] }); const fetchMock = vi.fn(); vi.stubGlobal('fetch',fetchMock);
     const oauth = new OAuthService({ query } as unknown as DatabaseService, {} as AuthService);

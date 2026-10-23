@@ -28,7 +28,7 @@ export class OAuthService {
   }
 
   async callback(provider: Provider, state: unknown, code: unknown, browser?: string) {
-    if (typeof state !== 'string' || state.length !== 43 || typeof code !== 'string' || code.length > 2048 || !browser) throw new UnauthorizedException('Invalid OAuth callback');
+    if (typeof state !== 'string' || !/^[\w-]{43}$/.test(state) || typeof code !== 'string' || !code.length || code.length > 2048 || !browser) throw new UnauthorizedException('Invalid OAuth callback');
     const { rows } = await this.db.query<{ verifier: string; nonce: string }>('delete from oauth_attempts where state_hash=$1 and provider=$2 and browser_hash=$3 and expires_at>now() returning verifier,nonce', [digest(state),provider,digest(browser)]);
     const attempt = rows[0];
     if (!attempt) throw new UnauthorizedException('OAuth attempt expired or invalid');
@@ -40,7 +40,7 @@ export class OAuthService {
     let subject: string, email: string, name: string;
     if (provider === 'google') {
       if (typeof tokens.id_token !== 'string') throw new UnauthorizedException();
-      const { payload } = await jwtVerify(tokens.id_token, googleKeys, { issuer: ['https://accounts.google.com','accounts.google.com'], audience: requireEnv('GOOGLE_CLIENT_ID'), algorithms: ['RS256'], maxTokenAge: '10m' });
+      const { payload } = await jwtVerify(tokens.id_token, googleKeys, { issuer: ['https://accounts.google.com','accounts.google.com'], audience: requireEnv('GOOGLE_CLIENT_ID'), algorithms: ['RS256'], maxTokenAge: '10m', requiredClaims: ['exp','iat','sub','nonce','email','email_verified'] });
       if (payload.nonce !== attempt.nonce || payload.email_verified !== true || typeof payload.email !== 'string' || !payload.sub) throw new UnauthorizedException();
       subject = payload.sub; email = payload.email; name = typeof payload.name === 'string' ? payload.name : email;
     } else {

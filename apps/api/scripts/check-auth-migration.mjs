@@ -13,6 +13,11 @@ try {
   await client.query("insert into users(full_name,email,password_hash) values('Legacy user','legacy@example.test','existing-password-hash')");
   await client.query(await readFile(new URL('../migrations/002_authentication.sql',import.meta.url),'utf8'));
   await client.query(await readFile(new URL('../migrations/003_password_resets.sql',import.meta.url),'utf8'));
+  const identityMigration = await readFile(new URL('../migrations/004_auth_identity_timestamps.sql',import.meta.url),'utf8');
+  await client.query(identityMigration);
+  await client.query(identityMigration); // Additive migration is safe to repeat.
+  const identity = await client.query('select created_at,updated_at from auth_identities');
+  if (!identity.rows[0]?.created_at || !identity.rows[0]?.updated_at) throw new Error('Identity timestamp backfill failed');
   const { rows } = await client.query("select u.password_hash as legacy_hash,p.password_hash,u.email_verified_at,i.provider from users u join password_credentials p on p.user_id=u.id join auth_identities i on i.user_id=u.id where u.email='legacy@example.test'");
   if (rows.length !== 1 || rows[0].password_hash !== 'existing-password-hash' || rows[0].legacy_hash !== rows[0].password_hash || rows[0].email_verified_at !== null || rows[0].provider !== 'local') throw new Error('Legacy credential preservation failed');
   await client.query("insert into users(full_name,email) values('OAuth user','oauth@example.test')");

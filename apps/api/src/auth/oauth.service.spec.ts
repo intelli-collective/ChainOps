@@ -32,7 +32,7 @@ describe('provider protocol validation with mocked external responses', () => {
     vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response(JSON.stringify({ id_token:'signed-id-token' }))));
     vi.mocked(jwtVerify).mockResolvedValue({ payload:{ sub:'google-sub',email:'google@example.test',email_verified:true,nonce:'nonce',name:'Google member' },protectedHeader:{alg:'RS256'} } as Awaited<ReturnType<typeof jwtVerify>>);
     await expect(oauth.callback('google',state,'code','browser')).resolves.toEqual({access:'access',refresh:'refresh'});
-    expect(jwtVerify).toHaveBeenCalledWith('signed-id-token',expect.any(Function),expect.objectContaining({audience:'test-client',algorithms:['RS256'],issuer:['https://accounts.google.com','accounts.google.com']}));
+    expect(jwtVerify).toHaveBeenCalledWith('signed-id-token',expect.any(Function),expect.objectContaining({audience:'test-client',algorithms:['RS256'],issuer:['https://accounts.google.com','accounts.google.com'],requiredClaims:['exp','iat','sub','nonce','email','email_verified']}));
     expect(providerUser).toHaveBeenCalledWith('google','google-sub','google@example.test','Google member');
   });
   it.each([{ nonce:'wrong',email_verified:true },{ nonce:'nonce',email_verified:false }])('rejects invalid Google claims %j', async claims => {

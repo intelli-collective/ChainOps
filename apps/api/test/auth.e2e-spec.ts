@@ -30,7 +30,7 @@ describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('authentication PostgreSQL 
     admin = new pg.Client({ connectionString: process.env.AUTH_TEST_DATABASE_URL }); await admin.connect();
     await admin.query(`create schema "${schema}"`);
     pool = new pg.Pool({ connectionString: process.env.AUTH_TEST_DATABASE_URL, options: `-c search_path=${schema}` });
-    for (const name of ['001_core_schema.sql','002_authentication.sql','003_password_resets.sql']) await pool.query(await readFile(new URL(`../migrations/${name}`,import.meta.url),'utf8'));
+    for (const name of ['001_core_schema.sql','002_authentication.sql','003_password_resets.sql','004_auth_identity_timestamps.sql']) await pool.query(await readFile(new URL(`../migrations/${name}`,import.meta.url),'utf8'));
     db = { query: (sql: string, args?: unknown[]) => pool.query(sql,args), transaction: async (work: (c: pg.PoolClient) => Promise<unknown>) => {
       const c = await pool.connect(); try { await c.query('begin'); const value = await work(c); await c.query('commit'); return value; } catch (e) { await c.query('rollback'); throw e; } finally { c.release(); }
     } } as DatabaseService;
@@ -55,7 +55,7 @@ describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('authentication PostgreSQL 
     await expect(auth.login(input)).rejects.toThrow('Verify your email');
   });
   it('uses single-use expiring email verification and prevents duplicate accounts', async () => {
-    await auth.register(input); expect((await pool.query('select * from users')).rowCount).toBe(1);
+    await expect(auth.register(input)).rejects.toMatchObject({status:409}); expect((await pool.query('select * from users')).rowCount).toBe(1);
     const token = delivered.split('token=')[1]; await auth.verifyEmail(token);
     await expect(auth.verifyEmail(token)).rejects.toThrow();
     const expired = opaque(); const user = (await pool.query('select id from users')).rows[0];
@@ -103,6 +103,14 @@ describe.skipIf(!process.env.AUTH_TEST_DATABASE_URL)('authentication PostgreSQL 
     const id=await auth.providerUser('github','123','github@example.test','GitHub member');
     expect(await auth.providerUser('github','123','changed@example.test','Changed')).toBe(id);
     await expect(pool.query("insert into auth_identities(user_id,provider,subject) values($1,'github','123')",[id])).rejects.toMatchObject({code:'23505'});
+  });
+  it('resolves concurrent first sign-ins to one passwordless provider identity', async () => {
+    const ids = await Promise.all(Array.from({length:4}, () => auth.providerUser('google','concurrent-subject','concurrent@example.test','Concurrent member')));
+    expect(new Set(ids).size).toBe(1);
+    const identity = (await pool.query('select * from auth_identities where user_id=$1',[ids[0]])).rows[0];
+    expect(identity.created_at).toBeInstanceOf(Date); expect(identity.updated_at).toBeInstanceOf(Date);
+    expect((await pool.query('select * from password_credentials where user_id=$1',[ids[0]])).rowCount).toBe(0);
+    await expect(auth.login({email:'concurrent@example.test',password:'some password'})).rejects.toMatchObject({status:401});
   });
   it('sends returning members to projects without creating organizations during login', async () => {
     const user=(await pool.query('select id from users where email=$1',[input.email])).rows[0];
