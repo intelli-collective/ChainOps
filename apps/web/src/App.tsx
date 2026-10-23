@@ -185,6 +185,35 @@ export default function App() {
         <Route path="/forgot-password" element={<RecoveryPage mode="forgot" />} />
         <Route path="/reset-password" element={<RecoveryPage mode="reset" />} />
 
+        {import.meta.env.DEV && (
+          <Route element={<ApplicationLayout preview />}>
+            <Route path="/preview/member-2" element={<Navigate to="/preview/member-2/deployments" replace />} />
+            {([
+              ['deployments', 'history'],
+              ['deployments/new', 'wizard'],
+              ['deployments/:deploymentId', 'outcome'],
+              ['deployments/:deploymentId/transaction', 'transaction'],
+              ['contracts', 'registry'],
+              ['contracts/register', 'register'],
+              ['contracts/:contractId', 'contract'],
+              ['contracts/:contractId/abi', 'abi'],
+              ['artifacts/:artifactId/abi', 'abi'],
+              ['smart-contracts', 'registry'],
+            ] as const).map(([path, mode]) => (
+              <Route
+                key={path}
+                path={`/preview/member-2/${path}`}
+                element={
+                  <Suspense fallback={<p role="status">Loading preview…</p>}>
+                    <Member2Preview mode={mode} />
+                  </Suspense>
+                }
+              />
+            ))}
+            <Route path="/preview/member-2/*" element={<RoutePlaceholder title="Shared module integration" />} />
+          </Route>
+        )}
+
         <Route element={<ProtectedRoutes />}>
           {/* Organization onboarding has no application sidebar. */}
           <Route path="/onboarding" element={<OrganizationSetupPage />} />

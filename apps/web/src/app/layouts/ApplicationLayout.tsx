@@ -1,6 +1,4 @@
-from pathlib import Path
-
-content = r'''import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useParams } from 'react-router-dom'
 
 import { Member2Navigation, Member2Toolbar } from '../../features/deployments/components/Member2Chrome'
@@ -240,7 +238,7 @@ function Shell({
                   <NavLink
                     key={item.label}
                     to={item.to}
-                    className={({ isActive }) =>
+                    className={({ isActive }: { isActive: boolean }) =>
                       `shell-nav__link${isActive || (item.to === '/projects' && /^\/projects(\/|$)/.test(location.pathname)) ? ' active' : ''}`
                     }
                     onClick={close}
@@ -320,7 +318,3 @@ function Shell({
     </div>
   )
 }
-
-out=Path("/mnt/data/application-layout.tsx")
-out.write_text(content)
-print(out, len(content), content.count("<<<<<<<"), content.count(">>>>>>>"))
