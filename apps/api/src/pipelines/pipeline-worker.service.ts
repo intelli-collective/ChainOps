@@ -1,8 +1,9 @@
-import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy, Optional } from '@nestjs/common';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { hostname, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseService } from '../database/database.service.js';
+import { NotificationsService } from '../platform/notifications.service.js';
 import { collectArtifacts, downloadSource, IMAGES, InfrastructureError, installCommand, runContainer } from './pipeline-executor.js';
 import type { RunSnapshot, StageKey, StageStatus } from './pipeline-runs.service.js';
 
@@ -35,7 +36,11 @@ export class PipelineWorkerService implements OnApplicationBootstrap, OnModuleDe
   private stopped = false;
   private busy = false;
 
-  constructor(@Inject(DatabaseService) private readonly db: DatabaseService) {}
+  constructor(
+    @Inject(DatabaseService) private readonly db: DatabaseService,
+    // Optional so the worker still runs where the platform module is not wired (tests).
+    @Optional() @Inject(NotificationsService) private readonly notifications?: NotificationsService,
+  ) {}
 
   onApplicationBootstrap() {
     if (process.env.PIPELINE_WORKER === 'off' || process.env.VITEST) return;
@@ -245,5 +250,25 @@ export class PipelineWorkerService implements OnApplicationBootstrap, OnModuleDe
       await client.query("update pipeline_jobs set status = 'done', heartbeat_at = now() where run_id = $1", [runId]);
     });
     this.logger.log(`Run ${runId} finished: ${status}`);
+    await this.notifyFinished(runId, status, stage, reason).catch((error: Error) => this.logger.warn(`Notification failed for run ${runId}: ${error.message}`));
+  }
+
+  // Domain event → shared notification for the person who started the run.
+  private async notifyFinished(runId: string, status: 'success' | 'failed' | 'cancelled' | 'error', stage: StageKey | null, reason: string | null) {
+    if (!this.notifications || status === 'cancelled') return;
+    const { rows } = await this.db.query<{ triggered_by: string | null; run_number: number; project_id: string; organization_id: string; project: string; slug: string }>(
+      `select r.triggered_by, r.run_number, r.project_id, p.organization_id, p.name as project, p.slug
+         from pipeline_runs r join projects p on p.id = r.project_id where r.id = $1`, [runId]);
+    const run = rows[0];
+    if (!run?.triggered_by) return;
+    const failed = status !== 'success';
+    await this.notifications.notify([run.triggered_by], {
+      type: failed ? 'pipeline_failed' : 'pipeline_passed',
+      title: status === 'success' ? 'Build passed' : status === 'error' ? 'Build could not run' : 'Build failed',
+      body: status === 'success' ? `Run #${run.run_number} passed build and tests.` : `Run #${run.run_number} ${status === 'error' ? 'errored' : `failed at ${stage ?? 'a stage'}`}${reason ? `: ${reason}` : '.'}`,
+      organizationId: run.organization_id, projectId: run.project_id,
+      link: `/projects/${run.slug}/pipelines/${runId}${failed ? '?tab=test-logs' : ''}`, linkLabel: failed ? 'View logs' : 'View run',
+      context: `${run.project} · Run #${run.run_number}`, dedupeKey: `pipeline-run:${runId}:finished`,
+    });
   }
 }
