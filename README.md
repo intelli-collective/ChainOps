@@ -216,102 +216,15 @@ The exact storage architecture will be finalized during system design.
 
 ## Initial Repository Structure
 
-The repository uses an npm workspace layout:
+At the repository-initialization stage, the structure is intentionally minimal:
 
 ```text
 chainops/
 ├── README.md
-├── package.json
-├── apps/
-│   ├── api/        # NestJS backend
-│   └── web/        # React + Vite frontend
-├── packages/       # Shared packages (when introduced)
-├── docs/
-└── examples/
+└── .gitignore
 ```
 
-The API and web applications have separate package manifests and scripts, while the
-root `package.json` provides workspace-level development and build commands.
-
----
-
-## Local Development Setup
-
-### Prerequisites
-
-Install the following before setting up ChainOps:
-
-- [Node.js](https://nodejs.org/) with npm
-- Git
-
-The API and web applications are managed from the repository root through npm workspaces.
-
-### Initialize the workspace
-
-Clone the repository and install all workspace dependencies:
-
-```bash
-git clone https://github.com/intelli-collective/ChainOps.git
-cd ChainOps
-npm install
-```
-
-`npm install` installs dependencies for both `apps/api` and `apps/web`. Do not commit
-generated `node_modules` directories, build output, local environment files, or logs.
-
-### Start the API
-
-Run the NestJS API in watch mode:
-
-```bash
-npm run dev:api
-```
-
-The API is available at `http://localhost:3000` by default. Set the `PORT` environment
-variable to use a different port:
-
-```bash
-PORT=3001 npm run dev:api
-```
-
-### Start the web application
-
-In a second terminal, run the Vite development server:
-
-```bash
-npm run dev:web
-```
-
-The web application is available at `http://localhost:5173` by default.
-
-### Validate the applications
-
-Run the application checks from the repository root:
-
-```bash
-npm run build:api
-npm run build:web
-```
-
-The API also provides linting and tests, while the web application provides linting:
-
-```bash
-npm run lint -w apps/api
-npm test -w apps/api
-npm run lint -w apps/web
-```
-
-You can run workspace commands directly when working within one application:
-
-```bash
-cd apps/api
-npm run start:dev
-
-cd apps/web
-npm run dev
-```
-
-Stop each development server with `Ctrl+C`.
+The final repository structure will be introduced after the architecture and implementation boundaries are established.
 
 ---
 
