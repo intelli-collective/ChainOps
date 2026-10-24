@@ -1,0 +1,39 @@
+@baseUrl = http://localhost:3000
+@webOrigin = http://localhost:5173
+@projectId = REPLACE_WITH_EXISTING_PROJECT_UUID
+@accessToken = REPLACE_WITH_CHAINOPS_ACCESS_COOKIE_VALUE_AFTER_LOGIN
+@monitoredContractId = REPLACE_WITH_CREATED_MONITOR_UUID
+@csrfToken = REPLACE_WITH_CSRF_RESPONSE_TOKEN
+
+### Obtain CSRF token (keep cookies enabled).
+GET {{baseUrl}}/auth/csrf
+
+### Login with a verified account; use local variables for actual credentials.
+POST {{baseUrl}}/auth/login
+Origin: {{webOrigin}}
+X-CSRF-Token: {{csrfToken}}
+Content-Type: application/json
+
+{"email":"YOUR_VERIFIED_EMAIL","password":"YOUR_PASSWORD"}
+
+### Copy chainops_access from the login response cookie into accessToken.
+POST {{baseUrl}}/projects/{{projectId}}/monitored-contracts
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"name":"Vault Contract","network":"sepolia","address":"0x0123456789abcdef0123456789abcdef01234567"}
+
+### Read the persisted target.
+GET {{baseUrl}}/projects/{{projectId}}/monitored-contracts
+Authorization: Bearer {{accessToken}}
+
+### Store the target's id in monitoredContractId before this request.
+POST {{baseUrl}}/projects/{{projectId}}/alert-rules
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"name":"Large Withdrawal","monitoredContractId":"{{monitoredContractId}}","eventName":"Withdrawal","condition":{"field":"amount","operator":"gt","value":"100"},"enabled":true}
+
+### Read the persisted rule; follow the README's Neon SELECT verification.
+GET {{baseUrl}}/projects/{{projectId}}/alert-rules
+Authorization: Bearer {{accessToken}}

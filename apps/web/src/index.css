@@ -1,0 +1,21 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #eaf2ef;
+  background: #000;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --auth-surface: #0a1110;
+  --auth-border: #1b302c;
+  --auth-input-border: #526f67;
+  --auth-muted: #a1afaa;
+  --auth-accent: #4cc5bb;
+  --auth-button: #007e71;
+  --auth-error: #ffb4ab;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input { font: inherit; }
+button, a { touch-action: manipulation; }
+:focus-visible { outline: 2px solid var(--auth-accent); outline-offset: 4px; }

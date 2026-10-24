@@ -1,0 +1,52 @@
+# M1 pipeline demo. See README.md in this folder for getting an access token.
+# Works with the VS Code REST Client / JetBrains HTTP client.
+# For Postman, import docs/postman/ChainOps-M1-Pipelines.postman_collection.json.
+
+@baseUrl = http://localhost:3000
+# chainops_access cookie value from POST /auth/login (valid 10 minutes)
+@token = paste-access-token-here
+# A real project ID: select p.id, p.name from projects p;
+@projectId = 05d2496e-5fa4-4d7a-9606-7dd98d154e4b
+@runId = paste-run-id-here
+
+### Read the configuration
+GET {{baseUrl}}/projects/{{projectId}}/pipeline
+Authorization: Bearer {{token}}
+
+### Point the pipeline at a public Hardhat repository
+PATCH {{baseUrl}}/projects/{{projectId}}/pipeline
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"repository":"NomicFoundation/hardhat-boilerplate","branch":"master","stages":["checkout","build","test","slither","policy"]}
+
+### Branches of the configured repository
+GET {{baseUrl}}/projects/{{projectId}}/pipeline/branches
+Authorization: Bearer {{token}}
+
+### Start a run (201, queued, pinned to the branch's current commit)
+POST {{baseUrl}}/projects/{{projectId}}/pipeline/runs
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"branch":"master"}
+
+### List runs
+GET {{baseUrl}}/projects/{{projectId}}/pipeline/runs
+Authorization: Bearer {{token}}
+
+### Run details with stage logs
+GET {{baseUrl}}/projects/{{projectId}}/pipeline/runs/{{runId}}
+Authorization: Bearer {{token}}
+
+### Artifacts of a run
+GET {{baseUrl}}/projects/{{projectId}}/pipeline/runs/{{runId}}/artifacts
+Authorization: Bearer {{token}}
+
+### Cancel a queued or running run
+POST {{baseUrl}}/projects/{{projectId}}/pipeline/runs/{{runId}}/cancel
+Authorization: Bearer {{token}}
+
+### Re-run on the same commit
+POST {{baseUrl}}/projects/{{projectId}}/pipeline/runs/{{runId}}/rerun
+Authorization: Bearer {{token}}
